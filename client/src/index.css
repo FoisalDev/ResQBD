@@ -1,0 +1,69 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+body {
+	font-family: 'Inter', sans-serif;
+	background-color: #0f172a;
+	color: #f8fafc;
+}
+
+.leaflet-container {
+	height: 100%;
+	width: 100%;
+	border-radius: 0.75rem;
+}
+
+@keyframes pulse-ring {
+	0% {
+		transform: scale(0.8);
+		opacity: 1;
+	}
+	100% {
+		transform: scale(2);
+		opacity: 0;
+	}
+}
+
+.sos-pulse {
+	position: relative;
+}
+
+.sos-pulse::before {
+	content: '';
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	border-radius: 50%;
+	background: rgba(220, 38, 38, 0.5);
+	animation: pulse-ring 1.5s ease-out infinite;
+}
+
+.glass-card {
+	background: rgba(30, 41, 59, 0.7);
+	backdrop-filter: blur(12px);
+	border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+@keyframes gradient-shift {
+	0% {
+		background-position: 0% 50%;
+	}
+	50% {
+		background-position: 100% 50%;
+	}
+	100% {
+		background-position: 0% 50%;
+	}
+}
+
+.animate-gradient {
+	animation: gradient-shift 5s ease infinite;
+	background-size: 200% auto;
+}

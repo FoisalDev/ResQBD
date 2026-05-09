@@ -1,0 +1,240 @@
+{
+	"common": {
+		"appName": "ResQBD",
+		"loading": "Loading...",
+		"error": "An error occurred",
+		"success": "Success",
+		"cancel": "Cancel",
+		"submit": "Submit",
+		"save": "Save",
+		"delete": "Delete",
+		"edit": "Edit",
+		"view": "View",
+		"search": "Search",
+		"filter": "Filter",
+		"noData": "No data available",
+		"confirm": "Confirm",
+		"back": "Back",
+		"next": "Next",
+		"previous": "Previous",
+		"language": "Language",
+		"logout": "Logout",
+		"login": "Login",
+		"register": "Register"
+	},
+	"nav": {
+		"home": "Home",
+		"about": "About",
+		"risk": "Risk Map",
+		"login": "Login",
+		"register": "Register",
+		"dashboard": "Dashboard",
+		"notifications": "Notifications",
+		"profile": "Profile"
+	},
+	"auth": {
+		"loginTitle": "Welcome Back",
+		"loginSubtitle": "Sign in to your account",
+		"registerTitle": "Create Account",
+		"registerSubtitle": "Join the disaster response network",
+		"email": "Email",
+		"password": "Password",
+		"confirmPassword": "Confirm Password",
+		"name": "Full Name",
+		"phone": "Phone Number",
+		"role": "Role",
+		"citizen": "Citizen",
+		"volunteer": "Volunteer",
+		"admin": "Admin",
+		"forgotPassword": "Forgot Password?",
+		"noAccount": "Don't have an account?",
+		"haveAccount": "Already have an account?",
+		"loginSuccess": "Login successful",
+		"registerSuccess": "Registration successful",
+		"invalidCredentials": "Invalid email or password",
+		"emailExists": "Email already exists",
+		"passwordMismatch": "Passwords do not match"
+	},
+	"validation": {
+		"nameRequired": "Name is required",
+		"nameMin": "Name must be at least 2 characters",
+		"emailRequired": "Email is required",
+		"emailInvalid": "Please enter a valid email (e.g. name@example.com)",
+		"phoneInvalid": "Please enter a valid phone number (e.g. +8801712345678)",
+		"passwordRequired": "Password is required",
+		"passwordMin": "Password must be at least 6 characters",
+		"passwordMatch": "Passwords do not match"
+	},
+	"landing": {
+		"heroTitle": "AI-Powered Disaster Response for Bangladesh",
+		"heroSubtitle": "Real-time emergency response, volunteer coordination, and AI-driven risk prediction to save lives during natural disasters.",
+		"cta": "Get Started",
+		"ctaSecondary": "View Risk Map",
+		"features": {
+			"ai": {
+				"title": "AI Risk Prediction",
+				"description": "Machine learning models predict flood and cyclone risks using weather data"
+			},
+			"sos": {
+				"title": "Emergency SOS",
+				"description": "One-tap emergency alerts with geolocation for rapid response"
+			},
+			"volunteer": {
+				"title": "Volunteer Network",
+				"description": "Coordinate with trained volunteers for rescue and relief operations"
+			},
+			"shelter": {
+				"title": "Shelter Finder",
+				"description": "Find available shelters with real-time capacity updates"
+			}
+		},
+		"stats": {
+			"sos": "SOS Requests",
+			"volunteers": "Volunteers",
+			"shelters": "Shelters",
+			"relief": "Relief Distributed"
+		}
+	},
+	"sos": {
+		"title": "Emergency SOS",
+		"subtitle": "Send an emergency alert",
+		"type": "Emergency Type",
+		"types": {
+			"flood": "Flood",
+			"cyclone": "Cyclone",
+			"landslide": "Landslide",
+			"fire": "Fire",
+			"other": "Other"
+		},
+		"severity": "Severity Level",
+		"description": "Description",
+		"location": "Location",
+		"useCurrentLocation": "Use Current Location",
+		"selectOnMap": "Select on Map",
+		"submit": "Send SOS",
+		"success": "SOS request submitted successfully",
+		"history": "SOS History",
+		"status": {
+			"pending": "Pending",
+			"acknowledged": "Acknowledged",
+			"in_progress": "In Progress",
+			"resolved": "Resolved",
+			"cancelled": "Cancelled"
+		}
+	},
+	"report": {
+		"title": "Submit Disaster Report",
+		"subtitle": "Report a disaster incident",
+		"type": "Incident Type",
+		"description": "Description",
+		"photo": "Photo",
+		"location": "Location",
+		"submit": "Submit Report",
+		"success": "Report submitted successfully"
+	},
+	"relief": {
+		"title": "Request Relief",
+		"subtitle": "Request emergency relief supplies",
+		"type": "Relief Type",
+		"types": {
+			"food": "Food",
+			"water": "Water",
+			"medicine": "Medicine",
+			"clothing": "Clothing",
+			"shelter": "Shelter",
+			"other": "Other"
+		},
+		"quantity": "Quantity",
+		"urgency": "Urgency",
+		"urgencies": {
+			"low": "Low",
+			"medium": "Medium",
+			"high": "High",
+			"critical": "Critical"
+		},
+		"description": "Additional Details",
+		"submit": "Submit Request",
+		"success": "Relief request submitted",
+		"status": {
+			"pending": "Pending",
+			"approved": "Approved",
+			"rejected": "Rejected",
+			"dispatched": "Dispatched",
+			"delivered": "Delivered"
+		}
+	},
+	"shelter": {
+		"title": "Shelter Finder",
+		"subtitle": "Find nearby shelters",
+		"capacity": "Capacity",
+		"occupancy": "Current Occupancy",
+		"contact": "Contact",
+		"status": {
+			"open": "Open",
+			"full": "Full",
+			"closed": "Closed"
+		},
+		"findNearby": "Find Nearby"
+	},
+	"volunteer": {
+		"title": "Volunteer Dashboard",
+		"tasks": "Assigned Tasks",
+		"availability": "Availability",
+		"status": {
+			"available": "Available",
+			"busy": "Busy",
+			"offline": "Offline"
+		},
+		"setAvailable": "Set Available",
+		"setBusy": "Set Busy",
+		"setOffline": "Go Offline",
+		"deliveries": "Relief Deliveries",
+		"accept": "Accept",
+		"complete": "Complete",
+		"start": "Start"
+	},
+	"admin": {
+		"dashboard": "Admin Dashboard",
+		"users": "Manage Users",
+		"volunteers": "Manage Volunteers",
+		"shelters": "Manage Shelters",
+		"sos": "SOS Requests",
+		"reports": "Disaster Reports",
+		"relief": "Relief Tracking",
+		"alerts": "Alerts",
+		"weather": "Weather & Risk",
+		"analytics": "Analytics",
+		"stats": {
+			"totalSos": "Total SOS",
+			"activeSos": "Active SOS",
+			"volunteers": "Volunteers",
+			"shelters": "Shelters",
+			"reliefPending": "Relief Pending"
+		},
+		"assign": "Assign",
+		"verify": "Verify",
+		"approve": "Approve",
+		"reject": "Reject",
+		"broadcast": "Broadcast Alert"
+	},
+	"notifications": {
+		"title": "Notifications",
+		"markRead": "Mark as Read",
+		"markAllRead": "Mark All as Read",
+		"noNotifications": "No notifications"
+	},
+	"risk": {
+		"title": "Risk Overview",
+		"low": "Low Risk",
+		"medium": "Medium Risk",
+		"high": "High Risk",
+		"prediction": "AI Prediction",
+		"weather": "Current Weather"
+	},
+	"map": {
+		"sos": "SOS Markers",
+		"shelters": "Shelters",
+		"volunteers": "Volunteers",
+		"reports": "Reports"
+	}
+}
