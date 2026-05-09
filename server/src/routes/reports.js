@@ -41,14 +41,38 @@ router.post(
 					longitude: parseFloat(longitude)
 				},
 				include: {
-					user: { select: { name: true } }
+					user: { select: { id: true, name: true } }
 				}
 			});
+
+			// Notify the citizen
+			await prisma.notification.create({
+				data: {
+					userId: req.user.id,
+					title: 'Report Submitted',
+					message: `Your ${incident_type} report has been submitted successfully.`,
+					type: 'alert'
+				}
+			});
+
+			// Notify all admins
+			const admins = await prisma.user.findMany({ where: { role: 'admin' }, select: { id: true } });
+			for (const admin of admins) {
+				await prisma.notification.create({
+					data: {
+						userId: admin.id,
+						title: 'New Disaster Report',
+						message: `${report.user.name} reported a ${incident_type} incident.`,
+						type: 'alert'
+					}
+				});
+			}
 
 			io.to('role:admin').emit('report:new', report);
 
 			res.status(201).json(report);
 		} catch (error) {
+			console.error('Create report error:', error);
 			res.status(500).json({ message: 'Failed to create report' });
 		}
 	}
@@ -81,11 +105,23 @@ router.patch('/:id/verify', authenticate, authorize('admin'), async (req, res) =
 			data: {
 				verified: status === 'verified',
 				status: status === 'verified' ? 'verified' : 'rejected'
+			},
+			include: { user: { select: { id: true, name: true } } }
+		});
+
+		// Notify the citizen
+		await prisma.notification.create({
+			data: {
+				userId: report.user.id,
+				title: 'Report ' + (status === 'verified' ? 'Verified' : 'Rejected'),
+				message: `Your ${report.incidentType} report has been ${status === 'verified' ? 'verified' : 'rejected'}.`,
+				type: 'alert'
 			}
 		});
 
 		res.json(report);
 	} catch (error) {
+		console.error('Verify report error:', error);
 		res.status(500).json({ message: 'Failed to verify report' });
 	}
 });

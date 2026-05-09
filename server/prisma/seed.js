@@ -1,21 +1,25 @@
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
+import dotenv from 'dotenv';
+import { fetchLiveWeather } from '../src/services/weatherService.js';
+
+dotenv.config();
 
 const prisma = new PrismaClient();
 
 async function main() {
 	console.log('Seeding database...');
 
-	const adminPassword = await bcrypt.hash('admin123', 12);
-	const volunteerPassword = await bcrypt.hash('volunteer123', 12);
-	const citizenPassword = await bcrypt.hash('citizen123', 12);
+	const adminPassword = await bcrypt.hash('admin1234', 12);
+	const volunteerPassword = await bcrypt.hash('@Resq1234', 12);
+	const citizenPassword = await bcrypt.hash('@Resq1234', 12);
 
 	const admin = await prisma.user.upsert({
-		where: { email: 'admin@resqbd.gov.bd' },
+		where: { email: 'admin@gmail.com' },
 		update: {},
 		create: {
 			name: 'System Administrator',
-			email: 'admin@resqbd.gov.bd',
+			email: 'admin@gmail.com',
 			phone: '+8801234567890',
 			passwordHash: adminPassword,
 			role: 'admin'
@@ -23,11 +27,11 @@ async function main() {
 	});
 
 	const volunteer = await prisma.user.upsert({
-		where: { email: 'volunteer@resqbd.org' },
+		where: { email: 'volunteer@gmail.com' },
 		update: {},
 		create: {
 			name: 'Ahmed Hasan',
-			email: 'volunteer@resqbd.org',
+			email: 'volunteer@gmail.com',
 			phone: '+8801234567891',
 			passwordHash: volunteerPassword,
 			role: 'volunteer'
@@ -48,11 +52,11 @@ async function main() {
 	});
 
 	const citizen = await prisma.user.upsert({
-		where: { email: 'citizen@example.com' },
+		where: { email: 'citizen@gmail.com' },
 		update: {},
 		create: {
 			name: 'Rahim Ahmed',
-			email: 'citizen@example.com',
+			email: 'citizen@gmail.com',
 			phone: '+8801234567892',
 			passwordHash: citizenPassword,
 			role: 'citizen',
@@ -177,30 +181,56 @@ async function main() {
 		await prisma.adminAlert.create({ data: alert });
 	}
 
-	const districts = [
-		'Dhaka',
-		'Chittagong',
-		'Sylhet',
-		'Rajshahi',
-		'Khulna',
-		'Barisal',
-		'Rangpur',
-		'Mymensingh'
-	];
-	const riskCategories = ['Low', 'Medium', 'High'];
+	const districts = ['Dhaka', 'Chittagong', 'Sylhet', 'Rajshahi', 'Khulna', 'Barisal', 'Rangpur', 'Mymensingh'];
+	const month = new Date().getMonth() + 1;
+	const monsoonMonths = [5, 6, 7, 8, 9];
 
+	console.log('Fetching live weather data for risk predictions...');
 	for (const district of districts) {
-		const riskScore = Math.random();
-		const riskCategory = riskScore > 0.7 ? 'High' : riskScore > 0.4 ? 'Medium' : 'Low';
+		// REAL-TIME: weather data from OpenWeatherMap (with fallback for water level)
+		const weather = await fetchLiveWeather(district);
+
+		const isMonsoon = monsoonMonths.includes(month);
+		const monsoonFactor = isMonsoon ? 0.25 : -0.05;
+
+		const riskScore = Math.min(0.95, Math.max(0.05,
+			(weather.rainfall / 300) * 0.35 +
+			(weather.water / 15) * 0.30 +
+			(weather.wind / 60) * 0.15 +
+			(weather.humidity / 100) * 0.10 +
+			monsoonFactor
+		));
+
+		const riskCategory = riskScore > 0.6 ? 'High' : riskScore > 0.3 ? 'Medium' : 'Low';
+
+		const dataNote = weather.dataSource.water.startsWith('FALLBACK')
+			? ' (Note: water level is a fallback estimate — OpenWeatherMap does not provide river data; other fields are live)'
+			: '';
+
+		// Save weather log first
+		const weatherLog = await prisma.weatherLog.create({
+			data: {
+				district: weather.district,
+				temperature: weather.temperature,
+				humidity: weather.humidity,
+				windSpeed: weather.wind,
+				rainfall: weather.rainfall,
+				waterLevel: weather.water,
+				description: `${weather.description} | Data source: Temp/Humidity/Wind/Rain=live(OpenWeatherMap), Water=FALLBACK(baseline estimate)`
+			}
+		});
 
 		await prisma.riskPrediction.create({
 			data: {
 				district,
-				riskScore,
+				riskScore: Math.round(riskScore * 1000) / 1000,
 				riskCategory,
-				explanation: `${riskCategory} flood risk predicted for ${district} district based on current weather conditions`
+				explanation: `${riskCategory} flood risk predicted for ${district} district based on live weather data (rainfall: ${weather.rainfall}mm, water: ${weather.water}m).${dataNote}`,
+				weatherLogId: weatherLog.id
 			}
 		});
+
+		console.log(`  ${district}: ${riskCategory} (score: ${(riskScore * 100).toFixed(0)}%) — weather: live, water: ${weather.dataSource.water.startsWith('FALLBACK') ? 'FALLBACK' : 'live'}`);
 	}
 
 	console.log('Database seeded successfully!');

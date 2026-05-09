@@ -81,7 +81,7 @@ const AdminDashboard = () => {
 				className="glass-card p-6 rounded-xl"
 			>
 				<h2 className="text-2xl font-bold text-white">{t('admin.dashboard')}</h2>
-				<p className="text-slate-400 mt-1">Overview of the disaster response platform</p>
+				<p className="text-slate-300 mt-1">Overview of the disaster response platform</p>
 			</motion.div>
 
 			<div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -95,7 +95,7 @@ const AdminDashboard = () => {
 					>
 						<div className="flex items-center justify-between">
 							<div>
-								<p className="text-slate-400 text-sm">{card.title}</p>
+								<p className="text-slate-300 text-sm font-medium">{card.title}</p>
 								<p className="text-3xl font-bold text-white mt-1">{loading ? '...' : card.value}</p>
 							</div>
 							<div

@@ -76,6 +76,7 @@ router.post(
 					id: true,
 					name: true,
 					email: true,
+					phone: true,
 					role: true,
 					languagePref: true
 				}
@@ -140,6 +141,7 @@ router.post(
 					id: user.id,
 					name: user.name,
 					email: user.email,
+					phone: user.phone,
 					role: user.role,
 					avatarUrl: user.avatarUrl,
 					languagePref: user.languagePref
@@ -200,6 +202,15 @@ router.put(
 			}
 
 			const { name, phone, languagePref, latitude, longitude } = req.body;
+
+			if (phone) {
+				const existingPhone = await prisma.user.findFirst({
+					where: { phone, NOT: { id: req.user.id } }
+				});
+				if (existingPhone) {
+					return res.status(400).json({ message: 'This phone number is already in use. Please try another number.' });
+				}
+			}
 
 			const user = await prisma.user.update({
 				where: { id: req.user.id },

@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ResQBD — Entity Relationship Diagram</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #0f172a;
+    color: #e2e8f0;
+    padding: 40px;
+  }
+
+  h1 {
+    text-align: center;
+    font-size: 32px;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+
+  .subtitle {
+    text-align: center;
+    color: #94a3b8;
+    margin-bottom: 30px;
+    font-size: 14px;
+  }
+
+  .legend-bar {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #94a3b8;
+  }
+
+  .legend-dot {
+    width: 12px; height: 12px; border-radius: 50%; display: inline-block;
+  }
+
+  .legend-line {
+    width: 24px; height: 3px; border-radius: 2px; display: inline-block;
+  }
+
+  .erd-container {
+    position: relative;
+    max-width: 1500px;
+    margin: 0 auto;
+  }
+
+  svg.connections {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+    overflow: visible;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .section-title {
+    grid-column: 1 / -1;
+    font-size: 16px;
+    font-weight: 700;
+    color: #60a5fa;
+    border-bottom: 2px solid #1e3a5f;
+    padding-bottom: 6px;
+    margin-top: 8px;
+  }
+
+  .table-card {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: box-shadow 0.2s;
+  }
+
+  .table-card:hover {
+    box-shadow: 0 0 24px rgba(96, 165, 250, 0.15);
+    border-color: #3b82f6;
+  }
+
+  .table-header {
+    padding: 8px 12px;
+    font-weight: 700;
+    font-size: 13px;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border-bottom: 1px solid #334155;
+  }
+
+  .table-header .badge {
+    font-size: 9px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.1);
+    color: #94a3b8;
+    margin-left: auto;
+  }
+
+  .table-body {
+    padding: 4px 0;
+  }
+
+  .col {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 12px;
+    font-size: 11px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+  }
+
+  .col .key { font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 4px; flex-shrink: 0; }
+
+  .col .pk { background: #f59e0b; color: #000; }
+  .col .fk { background: #8b5cf6; color: #fff; }
+  .col .pkfk { background: #ec4899; color: #fff; }
+  .col .req { background: transparent; color: #64748b; }
+
+  .col .type { color: #64748b; font-size: 9px; margin-left: auto; white-space: nowrap; }
+
+  .col .name { color: #e2e8f0; }
+
+  /* Relationship line colors */
+  .line-core { stroke: #3b82f6; stroke-width: 2; }
+  .line-volunteer { stroke: #14b8a6; stroke-width: 2; }
+  .line-emergency { stroke: #ef4444; stroke-width: 2; }
+  .line-relief { stroke: #10b981; stroke-width: 2; }
+  .line-infra { stroke: #f59e0b; stroke-width: 2; }
+  .line-notif { stroke: #8b5cf6; stroke-width: 2; }
+  .line-weather { stroke: #06b6d4; stroke-width: 2; }
+  .line-admin { stroke: #ec4899; stroke-width: 2; }
+
+  /* Cardinality marker labels */
+  .card-label {
+    font-size: 13px;
+    font-weight: 800;
+    fill: #f1f5f9;
+    paint-order: stroke;
+    stroke: #0f172a;
+    stroke-width: 3px;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .fk-label {
+    font-size: 10px;
+    font-weight: 600;
+    fill: #94a3b8;
+    paint-order: stroke;
+    stroke: #0f172a;
+    stroke-width: 2px;
+  }
+
+  @media (max-width: 1200px) { .grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 900px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+
+  .footer {
+    text-align: center;
+    margin-top: 40px;
+    color: #475569;
+    font-size: 12px;
+    border-top: 1px solid #1e293b;
+    padding-top: 20px;
+  }
+</style>
+</head>
+<body>
+
+<h1>ResQBD — Entity Relationship Diagram</h1>
+<p class="subtitle">MySQL Database Schema · AI-Powered Disaster Response Platform</p>
+
+<div class="legend-bar">
+  <span class="legend-item"><span class="legend-line" style="background:#3b82f6"></span> Core</span>
+  <span class="legend-item"><span class="legend-line" style="background:#ef4444"></span> Emergency</span>
+  <span class="legend-item"><span class="legend-line" style="background:#10b981"></span> Relief</span>
+  <span class="legend-item"><span class="legend-line" style="background:#f59e0b"></span> Infrastructure</span>
+  <span class="legend-item"><span class="legend-line" style="background:#8b5cf6"></span> Notification</span>
+  <span class="legend-item"><span class="legend-line" style="background:#06b6d4"></span> Weather/Risk</span>
+  <span class="legend-item"><span class="legend-line" style="background:#ec4899"></span> Admin</span>
+  <span class="legend-item"><span class="legend-line" style="background:#14b8a6"></span> Volunteer</span>
+</div>
+
+<div class="legend-bar">
+  <span class="legend-item"><span class="legend-dot" style="background:#f59e0b;border-radius:2px"></span> PK = Primary Key</span>
+  <span class="legend-item"><span class="legend-dot" style="background:#8b5cf6;border-radius:2px"></span> FK = Foreign Key</span>
+  <span class="legend-item"><span class="legend-dot" style="background:#ec4899;border-radius:2px"></span> PK+FK (Composite)</span>
+  <span class="legend-item"><span style="font-weight:800;color:#f1f5f9">1</span> One</span>
+  <span class="legend-item"><span style="font-weight:800;color:#f1f5f9">*</span> Many</span>
+</div>
+
+<div class="erd-container" id="erdContainer">
+
+  <div class="grid" id="erdGrid">
+
+    <!-- ===== CORE ===== -->
+    <div class="section-title">🗄️ Core Entities</div>
+
+    <!-- User -->
+    <div class="table-card" id="card-user" style="border-color:#2563eb">
+      <div class="table-header" style="background:#1e3a5f"><span style="color:#60a5fa">👤</span> User <span class="badge">users</span></div>
+      <div class="table-body">
+        <div class="col"><span class="key pk">PK</span><span class="name">id</span><span class="type">Int</span></div>
+        <div class="col"><span class="key req"></span><span class="name">name</span><span class="type">VarChar(100)</span></div>
+        <div class="col"><span class="key req"></span><span class="name">email</span><span class="type">VarChar(150) UQ</span></div>
+        <div class="col"><span class="key req"></span><span class="name">phone</span><span class="type">VarChar(20) UQ</span></div>
+        <div class="col"><span class="key req"></span><span class="name">password_hash</span><span class="type">VarChar(255)</span></div>
+        <div class="col"><span class="key req"></span><span class="name">role</span><span class="type">UserRole enum</span></div>
+        <div class="col"><span class="key req"></span><span class="name">avatar_url</span><span class="type">VarChar(500) ?</span></div>
+        <div class="col"><span class="key req"></span><span class="name">language_pref</span><span class="type">LanguagePref</span></div>
+        <div class="col"><span class="key req"></span><span class="name">latitude</span><span class="type">Decimal ?</span></div>
+        <div class="col"><span class="key req"></span><span class="name">longitude</span><span class="type">Decimal ?</span></div>
+        <div class="col"><span class="key req"></span><span class="name">created_at</span><span class="type">DateTime</span></div>
+        <div class="col"><span class="key req"></span><span class="name">updated_at</span><span class="type">DateTime</span></div>
+      </div>
+    </div>
+
+    <!-- Volunteer -->
+    <div class="table-card" id="card-volunteer" style="border-color:#14b8a6">
+      <div class="table-header" style="background:#134e4a"><span style="color:#2dd4bf">🦺</span> Volunteer <span class="badge">volunteers</span></div>
+      <div class="table-body">
+        <div class="col"><span class="key pk">PK</span><span class="name">id</span><span class="type">Int</span></div>
+        <div class="col"><span class="key fk">FK</span><span class="name">user_id</span><span class="type">Int (UQ)</span></div>
+        <div class="col"><span class="key req"></span><span class="name">skills</span><span class="type">VarChar(500) ?</span></div>
+        <div class="col"><span class="key req"></span><span class="name">availability</span><span class="type">VolAvail enum</span></div>
+        <div class="col"><span class="key req"></span><span class="name">verified</span><span class="type">Boolean</span></div>
+        <div class="col"><span class="key req"></span><span class="name">latitude</span><span class="type">Decimal ?</span></div>
+        <div class="col"><span class="key req"></span><span class="name">longitude</span><span class="type">Decimal ?</span></div>
+      </div>
+    </div>
+
+    <!-- ===== EMERGENCY ===== -->
+    <div class="section-title">🚨 Emergency Response</div>
+
+    <!-- SOSRequest -->
+    <div class="table-card" id="card-sos" style="border-color:#dc2626">
+      <div class="table-header" style="background:#3b0f0f"><span style="color:#f87171">🆘</span> SOS Request <span class="badge">sos_requests</span></div>
+      <div class="table-body">
+        <div class="col"><span class="key pk">PK</span><span class="name">id</span><span class="type">Int</span></div>
+        <div class="col"><span class="key fk">FK</span><span class="name">user_id</span><span class="type">Int</span></div>
+        <div class="col"><span class="key req"></span><span class="name">emergency_type</span><span class="type">EmergencyType</span></div>
+        <div class="col"><span class="key req"></span><span class="name">severity</span><span class="type">Int</span></div>
+        <div class="col"><span class="key req"></span><span class="name">description</span><span class="type">Text ?</span></div>
+        <div class="col"><span class="key req"></span><span class="name">latitude</span><span class="type">Decimal</span></div>
+        <div class="col"><span class="key req"></span><span class="name">longitude</span><span class="type">Decimal</span></div>
+        <div class="col"><span class="key req"></span><span class="name">status</span><span class="type">SOSStatus</span></div>
+        <div class="col"><span class="key req"></span><span class="name">created_at</span><span class="type">DateTime</span></div>
+        <div class="col"><span class="key req"></span><span class="name">updated_at</span><span class="type">DateTime</span></div>
+      </div>
+    </div>
+
+    <!-- DisasterReport -->
+    <div class="table-card" id="card-disaster" style="border-color:#dc2626">
+      <div class="table-header" style="background:#3b0f0f"><span style="color:#f87171">📋</span> Disaster Report <span class="badge">disaster_reports</span></div>
+      <div class="table-body">
+        <div class="col"><span class="key pk">PK</span><span class="name">id</span><span class="type">Int</span></div>
+        <div class="col"><span class="key fk">FK</span><span class="name">user_id</span><span class="type">Int</span></div>
+        <div class="col"><span class="key req"></span><span class="name">incident_type</span><span class="type">IncidentType</span></div>
+        <div class="col"><span class="key req"></span><span class="name">description</span><span class="type">Text</span></div>
+        <div class="col"><span class="key req"></span><span class="name">image_url</span><span class="type">VarChar(500) ?</span></div>
+        <div class="col"><span class="key req"></span><span class="name">latitude</span><span class="type">Decimal</span></div>
+        <div class="col"><span class="key req"></span><span class="name">longitude</span><span class="type">Decimal</span></div>
+        <div class="col"><span class="key req"></span><span class="name">verified</span><span class="type">Boolean</span></div>
+        <div class="col"><span class="key req"></span><span class="name">status</span><span class="type">ReportStatus</span></div>
+        <div class="col"><span class="key req"></span><span class="name">created_at</span><span class="type">DateTime</span></div>
+      </div>
+    </div>
+
+    <!-- VolunteerAssignment -->
+    <div class="table-card" id="card-assignment" style="border-color:#dc2626">
+      <div class="table-header" style="background:#3b0f0f"><span style="color:#f87171">📎</span> Volunteer Assignment <span class="badge">volunteer_assignments</span></div>
+      <div class="table-body">
+        <div class="col"><span class="key pk">PK</span><span class="name">id</span><span class="type">Int</span></div>
+        <div class="col"><span class="key fk">FK</span><span class="name">volunteer_id</span><span class="type">Int</span></div>
+        <div class="col"><span class="key fk">FK</span><span class="name">sos_request_id</span><span class="type">Int (UQ) ?</span></div>
+        <div class="col"><span class="key req"></span><span class="name">task_type</span><span class="type">VarChar(50)</span></div>
+        <div class="col"><span class="key req"></span><span class="name">description</span><span class="type">Text ?</span></div>
+        <div class="col"><span class="key req"></span><span class="name">status</span><span class="type">TaskStatus</span></div>
+        <div class="col"><span class="key fk">FK</span><span class="name">assigned_by</span><span class="type">Int</span></div>
+        <div class="col"><span class="key req"></span><span class="name">created_at</span><span class="type">DateTime</span></div>
+        <div class="col"><span class="key req"></span><span class="name">updated_at</span><span class="type">DateTime</span></div>
+      </div>
+    </div>
+
+    <!-- ===== RELIEF ===== -->
+    <div class="section-title">📦 Relief Management</div>
+
+    <!-- ReliefRequest -->
+    <div class="table-card" id="card-relief-request" style="border-color:#10b981">
+      <div class="table-header" style="background:#0f3d25"><span style="color:#34d399">📦</span> Relief Request <span class="badge">relief_requests</span></div>
+      <div class="table-body">
+        <div class="col"><span class="key pk">PK</span><span class="name">id</span><span class="type">Int</span></div>
+        <div class="col"><span class="key fk">FK</span><span class="name">user_id</span><span class="type">Int</span></div>
+        <div class="col"><span class="key req"></span><span class="name">relief_type</span><span class="type">ReliefType</span></div>
+        <div class="col"><span class="key req"></span><span class="name">quantity</span><span class="type">VarChar(100)</span></div>
+        <div class="col"><span class="key req"></span><span class="name">urgency</span><span class="type">Urgency</span></div>
+        <div class="col"><span class="key req"></span><span class="name">description</span><span class="type">Text ?</span></div>
+        <div class="col"><span class="key req"></span><span class="name">latitude</span><span class="type">Decimal ?</span></div>
+        <div class="col"><span class="key req"></span><span class="name">longitude</span><span class="type">Decimal ?</span></div>
+        <div class="col"><span class="key req"></span><span class="name">status</span><span class="type">ReliefStatus</span></div>
+        <div class="col"><span class="key req"></span><span class="name">created_at</span><span class="type">DateTime</span></div>
+        <div class="col"><span class="key req"></span><span class="name">updated_at</span><span class="type">DateTime</span></div>
+      </div>
+    </div>
+
+    <!-- ReliefDistribution -->
+    <div class="table-card" id="card-relief-dist" style="border-color:#10b981">
+      <div class="table-header" style="background:#0f3d25"><span style="color:#34d399">🚚</span> Relief Distribution <span class="badge">relief_distributions</span></div>
+      <div class="table-body">
+        <div class="col"><span class="key pk">PK</span><span class="name">id</span><span class="type">Int</span></div>
+        <div class="col"><span class="key fk">FK</span><span class="name">relief_request_id</span><span class="type">Int</span></div>
+        <div class="col"><span class="key fk">FK</span><span class="name">volunteer_id</span><span class="type">Int ?</span></div>
+        <div class="col"><span class="key fk">FK</span><span class="name">approved_by</span><span class="type">Int</span></div>
+        <div class="col"><span class="key req"></span><span class="name">delivery_status</span><span class="type">DeliveryStatus</span></div>
+        <div class="col"><span class="key req"></span><span class="name">notes</span><span class="type">Text ?</span></div>
+        <div class="col"><span class="key req"></span><span class="name">created_at</span><span class="type">DateTime</span></div>
+        <div class="col"><span class="key req"></span><span class="name">updated_at</span><span class="type">DateTime</span></div>
+      </div>
+    </div>
+
+    <!-- ===== INFRASTRUCTURE ===== -->
+    <div class="section-title">🏗️ Infrastructure</div>
+
+    <!-- Shelter -->
+    <div class="table-card" id="card-shelter" style="border-color:#f59e0b">
+      <div class="table-header" style="background:#3b2f0f"><span style="color:#fbbf24">🏠</span> Shelter <span class="badge">shelters</span></div>
+      <div class="table-body">
+        <div class="col"><span class="key pk">PK</span><span class="name">id</span><span class="type">Int</span></div>
+        <div class="col"><span class="key req"></span><span class="name">name</span><span class="type">VarChar(200)</span></div>
+        <div class="col"><span class="key req"></span><span class="name">address</span><span class="type">Text</span></div>
+        <div class="col"><span class="key req"></span><span class="name">latitude</span><span class="type">Decimal</span></div>
+        <div class="col"><span class="key req"></span><span class="name">longitude</span><span class="type">Decimal</span></div>
+        <div class="col"><span class="key req"></span><span class="name">capacity</span><span class="type">Int</span></div>
+        <div class="col"><span class="key req"></span><span class="name">current_occupancy</span><span class="type">Int</span></div>
+        <div class="col"><span class="key req"></span><span class="name">contact_phone</span><span class="type">VarChar(20) ?</span></div>
+        <div class="col"><span class="key req"></span><span class="name">status</span><span class="type">ShelterStatus</span></div>
+        <div class="col"><span class="key fk">FK</span><span class="name">created_by</span><span class="type">Int ?</span></div>
+      </div>
+    </div>
+
+    <!-- ===== NOTIFICATION ===== -->
+    <div class="section-title">🔔 Notifications</div>
+
+    <!-- Notification -->
+    <div class="table-card" id="card-notification" style="border-color:#8b5cf6">
+      <div class="table-header" style="background:#2e1065"><span style="color:#a78bfa">🔔</span> Notification <span class="badge">notifications</span></div>
+      <div class="table-body">
+        <div class="col"><span class="key pk">PK</span><span class="name">id</span><span class="type">Int</span></div>
+        <div class="col"><span class="key fk">FK</span><span class="name">user_id</span><span class="type">Int</span></div>
+        <div class="col"><span class="key req"></span><span class="name">title</span><span class="type">VarChar(200)</span></div>
+        <div class="col"><span class="key req"></span><span class="name">message</span><span class="type">Text</span></div>
+        <div class="col"><span class="key req"></span><span class="name">type</span><span class="type">NotifType</span></div>
+        <div class="col"><span class="key req"></span><span class="name">is_read</span><span class="type">Boolean</span></div>
+        <div class="col"><span class="key req"></span><span class="name">created_at</span><span class="type">DateTime</span></div>
+      </div>
+    </div>
+
+    <!-- ===== WEATHER & RISK ===== -->
+    <div class="section-title">🌤️ Weather & Risk Prediction</div>
+
+    <!-- WeatherLog -->
+    <div class="table-card" id="card-weather" style="border-color:#06b6d4">
+      <div class="table-header" style="background:#0f3d4a"><span style="color:#22d3ee">🌡️</span> Weather Log <span class="badge">weather_logs</span></div>
+      <div class="table-body">
+        <div class="col"><span class="key pk">PK</span><span class="name">id</span><span class="type">Int</span></div>
+        <div class="col"><span class="key req"></span><span class="name">district</span><span class="type">VarChar(100)</span></div>
+        <div class="col"><span class="key req"></span><span class="name">temperature</span><span class="type">Decimal ?</span></div>
+        <div class="col"><span class="key req"></span><span class="name">humidity</span><span class="type">Decimal ?</span></div>
+        <div class="col"><span class="key req"></span><span class="name">wind_speed</span><span class="type">Decimal ?</span></div>
+        <div class="col"><span class="key req"></span><span class="name">rainfall</span><span class="type">Decimal ?</span></div>
+        <div class="col"><span class="key req"></span><span class="name">water_level</span><span class="type">Decimal ?</span></div>
+        <div class="col"><span class="key req"></span><span class="name">description</span><span class="type">VarChar(200) ?</span></div>
+        <div class="col"><span class="key req"></span><span class="name">fetched_at</span><span class="type">DateTime</span></div>
+      </div>
+    </div>
+
+    <!-- RiskPrediction -->
+    <div class="table-card" id="card-risk" style="border-color:#06b6d4">
+      <div class="table-header" style="background:#0f3d4a"><span style="color:#22d3ee">⚠️</span> Risk Prediction <span class="badge">risk_predictions</span></div>
+      <div class="table-body">
+        <div class="col"><span class="key pk">PK</span><span class="name">id</span><span class="type">Int</span></div>
+        <div class="col"><span class="key req"></span><span class="name">district</span><span class="type">VarChar(100)</span></div>
+        <div class="col"><span class="key req"></span><span class="name">risk_score</span><span class="type">Decimal</span></div>
+        <div class="col"><span class="key req"></span><span class="name">risk_category</span><span class="type">VarChar(20)</span></div>
+        <div class="col"><span class="key req"></span><span class="name">explanation</span><span class="type">Text ?</span></div>
+        <div class="col"><span class="key fk">FK</span><span class="name">weather_log_id</span><span class="type">Int ?</span></div>
+        <div class="col"><span class="key req"></span><span class="name">created_at</span><span class="type">DateTime</span></div>
+      </div>
+    </div>
+
+    <!-- ===== ADMIN ===== -->
+    <div class="section-title">⚙️ Admin</div>
+
+    <!-- AdminAlert -->
+    <div class="table-card" id="card-admin" style="border-color:#ec4899">
+      <div class="table-header" style="background:#3b0f2a"><span style="color:#f472b6">📢</span> Admin Alert <span class="badge">admin_alerts</span></div>
+      <div class="table-body">
+        <div class="col"><span class="key pk">PK</span><span class="name">id</span><span class="type">Int</span></div>
+        <div class="col"><span class="key fk">FK</span><span class="name">created_by</span><span class="type">Int</span></div>
+        <div class="col"><span class="key req"></span><span class="name">title</span><span class="type">VarChar(200)</span></div>
+        <div class="col"><span class="key req"></span><span class="name">message</span><span class="type">Text</span></div>
+        <div class="col"><span class="key req"></span><span class="name">severity</span><span class="type">AlertSeverity</span></div>
+        <div class="col"><span class="key req"></span><span class="name">target_area</span><span class="type">VarChar(200) ?</span></div>
+        <div class="col"><span class="key req"></span><span class="name">is_active</span><span class="type">Boolean</span></div>
+        <div class="col"><span class="key req"></span><span class="name">created_at</span><span class="type">DateTime</span></div>
+        <div class="col"><span class="key req"></span><span class="name">expires_at</span><span class="type">DateTime ?</span></div>
+      </div>
+    </div>
+
+    <!-- ===== ENUMS ===== -->
+    <div class="section-title">📌 Enumerations</div>
+
+    <div class="table-card" id="card-enums" style="border-color:#475569">
+      <div class="table-header" style="background:#1e293b"><span style="color:#94a3b8">🏷️</span> Enumerations <span class="badge">16 types</span></div>
+      <div class="table-body" style="padding:8px 12px;font-size:11px;color:#94a3b8;line-height:1.8">
+        <b>UserRole:</b> citizen, volunteer, admin<br>
+        <b>LanguagePref:</b> en, bn<br>
+        <b>VolunteerAvailability:</b> available, busy, offline<br>
+        <b>EmergencyType:</b> flood, cyclone, landslide, fire, other<br>
+        <b>IncidentType:</b> flood, cyclone, landslide, fire, building_collapse, other<br>
+        <b>SOSStatus:</b> pending, acknowledged, in_progress, resolved, cancelled<br>
+        <b>ReportStatus:</b> submitted, verified, rejected<br>
+        <b>ShelterStatus:</b> open, full, closed<br>
+        <b>TaskStatus:</b> pending, accepted, in_progress, completed, cancelled<br>
+        <b>ReliefType:</b> food, water, medicine, clothing, shelter, other<br>
+        <b>Urgency:</b> low, medium, high, critical<br>
+        <b>ReliefStatus:</b> pending, approved, rejected, dispatched, delivered<br>
+        <b>DeliveryStatus:</b> preparing, in_transit, delivered<br>
+        <b>NotificationType:</b> sos, alert, task, relief, system<br>
+        <b>AlertSeverity:</b> info, warning, danger
+      </div>
+    </div>
+
+  </div>
+
+  <svg class="connections" id="connectionSvg"></svg>
+</div>
+
+<div class="footer">
+  ResQBD Database Schema · Generated from prisma/schema.prisma · May 2026
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  const container = document.getElementById('erdContainer');
+  const svg = document.getElementById('connectionSvg');
+  const grid = document.getElementById('erdGrid');
+
+  const relationships = [
+    // ── User → * tables (Core) ──
+    { from: 'card-user', to: 'card-notification', fromCard: '1', toCard: '*',  fk: 'user_id',   cls: 'line-notif' },
+    { from: 'card-user', to: 'card-sos',          fromCard: '1', toCard: '*',  fk: 'user_id',   cls: 'line-emergency' },
+    { from: 'card-user', to: 'card-disaster',     fromCard: '1', toCard: '*',  fk: 'user_id',   cls: 'line-emergency' },
+    { from: 'card-user', to: 'card-relief-request', fromCard: '1', toCard: '*', fk: 'user_id',  cls: 'line-relief' },
+    { from: 'card-user', to: 'card-shelter',      fromCard: '1', toCard: '*',  fk: 'created_by', cls: 'line-infra' },
+    { from: 'card-user', to: 'card-admin',        fromCard: '1', toCard: '*',  fk: 'created_by', cls: 'line-admin' },
+
+    // User → Volunteer (1:1)
+    { from: 'card-user', to: 'card-volunteer',    fromCard: '1', toCard: '1',  fk: 'user_id',   cls: 'line-core' },
+
+    // User as assigned_by / approved_by
+    { from: 'card-user', to: 'card-assignment',   fromCard: '1', toCard: '*',  fk: 'assigned_by', cls: 'line-volunteer' },
+    { from: 'card-user', to: 'card-relief-dist',  fromCard: '1', toCard: '*',  fk: 'approved_by', cls: 'line-relief' },
+
+    // Volunteer → *
+    { from: 'card-volunteer', to: 'card-assignment', fromCard: '1', toCard: '*', fk: 'volunteer_id', cls: 'line-volunteer' },
+    { from: 'card-volunteer', to: 'card-relief-dist', fromCard: '1', toCard: '*', fk: 'volunteer_id', cls: 'line-relief' },
+
+    // SOSRequest → VolunteerAssignment
+    { from: 'card-sos', to: 'card-assignment', fromCard: '1', toCard: '*', fk: 'sos_request_id', cls: 'line-emergency' },
+
+    // ReliefRequest → ReliefDistribution
+    { from: 'card-relief-request', to: 'card-relief-dist', fromCard: '1', toCard: '*', fk: 'relief_request_id', cls: 'line-relief' },
+
+    // WeatherLog → RiskPrediction
+    { from: 'card-weather', to: 'card-risk', fromCard: '1', toCard: '*', fk: 'weather_log_id', cls: 'line-weather' },
+  ];
+
+  var colorMap = {
+    'line-core': '#3b82f6',
+    'line-volunteer': '#14b8a6',
+    'line-emergency': '#ef4444',
+    'line-relief': '#10b981',
+    'line-infra': '#f59e0b',
+    'line-notif': '#8b5cf6',
+    'line-weather': '#06b6d4',
+    'line-admin': '#ec4899',
+  };
+
+  function getEndpoint(fromRect, toRect) {
+    const fc = { x: fromRect.left + fromRect.width / 2, y: fromRect.top + fromRect.height / 2 };
+    const tc = { x: toRect.left + toRect.width / 2,   y: toRect.top + toRect.height / 2 };
+    const dx = tc.x - fc.x;
+    const dy = tc.y - fc.y;
+    const adx = Math.abs(dx);
+    const ady = Math.abs(dy);
+
+    if (adx >= ady) {
+      if (dx > 0) return { x: fromRect.right, y: fc.y, side: 'R' };
+      else        return { x: fromRect.left,  y: fc.y, side: 'L' };
+    } else {
+      if (dy > 0) return { x: fc.x, y: fromRect.bottom, side: 'B' };
+      else        return { x: fc.x, y: fromRect.top,    side: 'T' };
+    }
+  }
+
+  function drawCardinalityMarker(endX, endY, angleDeg, type, svg) {
+    const angle = angleDeg * Math.PI / 180;
+    const len = 10;
+    const spread = 6;
+
+    function line(x1, y1, x2, y2) {
+      const l = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      l.setAttribute('x1', x1); l.setAttribute('y1', y1);
+      l.setAttribute('x2', x2); l.setAttribute('y2', y2);
+      l.setAttribute('stroke', '#f1f5f9');
+      l.setAttribute('stroke-width', '2.5');
+      l.setAttribute('stroke-linecap', 'round');
+      svg.appendChild(l);
+    }
+
+    const perp = angle + Math.PI / 2;
+    const cx = endX - Math.cos(angle) * 4;
+    const cy = endY - Math.sin(angle) * 4;
+
+    if (type === '1') {
+      const px = Math.cos(perp);
+      const py = Math.sin(perp);
+      line(cx - px * len, cy - py * len, cx + px * len, cy + py * len);
+    } else if (type === '*') {
+      const px = Math.cos(perp);
+      const py = Math.sin(perp);
+      line(cx, cy, cx + Math.cos(angle - 0.4) * len, cy + Math.sin(angle - 0.4) * len);
+      line(cx, cy, cx + Math.cos(angle + 0.4) * len, cy + Math.sin(angle + 0.4) * len);
+      line(cx, cy, cx + px * spread, cy + py * spread);
+    }
+  }
+
+  let drawTimeout = null;
+
+  function drawRelationships() {
+    if (drawTimeout) cancelAnimationFrame(drawTimeout);
+    drawTimeout = requestAnimationFrame(function() {
+      const containerRect = container.getBoundingClientRect();
+
+      const w = grid.scrollWidth;
+      const h = Math.max(grid.scrollHeight, container.clientHeight);
+      svg.setAttribute('width', w);
+      svg.setAttribute('height', h);
+      svg.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
+
+      // Remove old content but keep defs
+      while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+      const cardRects = {};
+      document.querySelectorAll('.table-card[id]').forEach(function(el) {
+        const r = el.getBoundingClientRect();
+        cardRects[el.id] = {
+          left:   r.left   - containerRect.left,
+          top:    r.top    - containerRect.top,
+          right:  r.right  - containerRect.left,
+          bottom: r.bottom - containerRect.top,
+          width:  r.width,
+          height: r.height,
+          cx:     r.left + r.width/2 - containerRect.left,
+          cy:     r.top  + r.height/2 - containerRect.top,
+        };
+      });
+
+      relationships.forEach(function(rel) {
+        const fromR = cardRects[rel.from];
+        const toR   = cardRects[rel.to];
+        if (!fromR || !toR) return;
+
+        const p1 = getEndpoint(
+          { left: fromR.left, right: fromR.right, top: fromR.top, bottom: fromR.bottom, width: fromR.width, height: fromR.height },
+          { left: toR.left, right: toR.right, top: toR.top, bottom: toR.bottom, width: toR.width, height: toR.height }
+        );
+        const p2 = getEndpoint(
+          { left: toR.left, right: toR.right, top: toR.top, bottom: toR.bottom, width: toR.width, height: toR.height },
+          { left: fromR.left, right: fromR.right, top: fromR.top, bottom: fromR.bottom, width: fromR.width, height: fromR.height }
+        );
+
+        const dx = p2.x - p1.x;
+        const dy = p2.y - p1.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const offset = Math.min(dist * 0.4, 80);
+
+        let cx1, cy1, cx2, cy2;
+        if (Math.abs(dx) >= Math.abs(dy)) {
+          cx1 = p1.x + offset; cy1 = p1.y;
+          cx2 = p2.x - offset; cy2 = p2.y;
+        } else {
+          cx1 = p1.x; cy1 = p1.y + offset;
+          cx2 = p2.x; cy2 = p2.y - offset;
+        }
+
+        // Draw bezier curve
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('d', 'M ' + p1.x + ' ' + p1.y + ' C ' + cx1 + ' ' + cy1 + ', ' + cx2 + ' ' + cy2 + ', ' + p2.x + ' ' + p2.y);
+        path.setAttribute('class', rel.cls);
+        path.setAttribute('fill', 'none');
+        path.setAttribute('stroke-linecap', 'round');
+        svg.appendChild(path);
+
+        // Cardinality at p1 (from side)
+        let a1 = Math.atan2(p2.y - p1.y, p2.x - p1.x) * 180 / Math.PI;
+        drawCardinalityMarker(p1.x, p1.y, a1, rel.fromCard, svg);
+
+        // Cardinality at p2 (to side)
+        let a2 = Math.atan2(p1.y - p2.y, p1.x - p2.x) * 180 / Math.PI;
+        drawCardinalityMarker(p2.x, p2.y, a2, rel.toCard, svg);
+
+        // FK label at midpoint
+        const midX = (p1.x + p2.x) / 2;
+        const midY = (p1.y + p2.y) / 2;
+        const angle = Math.atan2(dy, dx);
+        const perpAngle = angle + Math.PI / 2;
+        const labelOffset = 14;
+        const lx = midX + Math.cos(perpAngle) * labelOffset;
+        const ly = midY + Math.sin(perpAngle) * labelOffset;
+
+        const fkText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        fkText.setAttribute('x', lx);
+        fkText.setAttribute('y', ly);
+        fkText.setAttribute('class', 'fk-label');
+        fkText.setAttribute('text-anchor', 'middle');
+        fkText.setAttribute('dominant-baseline', 'middle');
+        fkText.textContent = rel.fk;
+        svg.appendChild(fkText);
+
+        let tx1 = p1.x, ty1 = p1.y;
+        let tx2 = p2.x, ty2 = p2.y;
+
+        if (Math.abs(dx) >= Math.abs(dy)) {
+          tx1 += (p1.side === 'R' ? 1 : -1) * 14;
+          tx2 += (p2.side === 'R' ? 1 : -1) * 14;
+        } else {
+          ty1 += (p1.side === 'B' ? 1 : -1) * 14;
+          ty2 += (p2.side === 'B' ? 1 : -1) * 14;
+        }
+
+        const t1 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        t1.setAttribute('x', tx1); t1.setAttribute('y', ty1);
+        t1.setAttribute('class', 'card-label');
+        t1.setAttribute('text-anchor', 'middle');
+        t1.setAttribute('dominant-baseline', 'middle');
+        t1.textContent = rel.fromCard;
+        svg.appendChild(t1);
+
+        const t2 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        t2.setAttribute('x', tx2); t2.setAttribute('y', ty2);
+        t2.setAttribute('class', 'card-label');
+        t2.setAttribute('text-anchor', 'middle');
+        t2.setAttribute('dominant-baseline', 'middle');
+        t2.textContent = rel.toCard;
+        svg.appendChild(t2);
+
+        // Relationship type label (1:1, 1:N)
+        const rtX = midX + Math.cos(perpAngle) * (labelOffset + 14);
+        const rtY = midY + Math.sin(perpAngle) * (labelOffset + 14);
+        const rt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        rt.setAttribute('x', rtX); rt.setAttribute('y', rtY);
+        rt.setAttribute('fill', colorMap[rel.cls] || '#94a3b8');
+        rt.setAttribute('font-size', '9');
+        rt.setAttribute('font-weight', '700');
+        rt.setAttribute('text-anchor', 'middle');
+        rt.setAttribute('dominant-baseline', 'middle');
+        rt.setAttribute('stroke', '#0f172a');
+        rt.setAttribute('stroke-width', '2px');
+        rt.setAttribute('paint-order', 'stroke');
+        rt.textContent = rel.fromCard + ':' + rel.toCard;
+        svg.appendChild(rt);
+      });
+    });
+  }
+
+  // Draw on load and resize
+  window.addEventListener('load', drawRelationships);
+  window.addEventListener('resize', drawRelationships);
+
+  // Also draw after a small delay to ensure layout is settled
+  setTimeout(drawRelationships, 100);
+  setTimeout(drawRelationships, 500);
+})();
+</script>
+
+</body>
+</html>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -15,6 +15,12 @@ const Navbar = ({ onMenuClick, showMenu }) => {
 	const [notifications, setNotifications] = useState([]);
 	const [unreadCount, setUnreadCount] = useState(0);
 
+	useEffect(() => {
+		if (user) {
+			fetchNotifications();
+		}
+	}, [user]);
+
 	const toggleLanguage = () => {
 		const newLang = i18n.language === 'en' ? 'bn' : 'en';
 		i18n.changeLanguage(newLang);
@@ -27,9 +33,27 @@ const Navbar = ({ onMenuClick, showMenu }) => {
 		try {
 			const response = await api.get('/notifications');
 			setNotifications(response.data.slice(0, 5));
-			setUnreadCount(response.data.filter((n) => !n.is_read).length);
+			setUnreadCount(response.data.filter((n) => !n.isRead).length);
 		} catch (error) {
 			console.error('Error fetching notifications:', error);
+		}
+	};
+
+	const markAsRead = async (id) => {
+		try {
+			await api.patch(`/notifications/${id}/read`);
+			fetchNotifications();
+		} catch (error) {
+			console.error('Error marking notification as read:', error);
+		}
+	};
+
+	const markAllAsRead = async () => {
+		try {
+			await api.patch('/notifications/read-all');
+			fetchNotifications();
+		} catch (error) {
+			console.error('Error marking all as read:', error);
 		}
 	};
 
@@ -42,8 +66,8 @@ const Navbar = ({ onMenuClick, showMenu }) => {
 
 	return (
 		<nav className="bg-slate-800 border-b border-slate-700 sticky top-0 z-50">
-			<div className="container mx-auto px-4">
-				<div className="flex items-center justify-between h-16">
+			<div className="px-6">
+				<div className="flex items-center justify-between h-24">
 					<div className="flex items-center gap-8">
 						{showMenu && (
 							<button
@@ -61,10 +85,7 @@ const Navbar = ({ onMenuClick, showMenu }) => {
 							</button>
 						)}
 						<Link to="/" className="flex items-center gap-2">
-							<div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
-								<span className="text-white font-bold">R</span>
-							</div>
-							<span className="text-xl font-bold text-white">ResQBD</span>
+							<img src="/logo.png" alt="ResQBD" className="w-60 h-60 object-contain" />
 						</Link>
 
 						{!user && (
@@ -124,18 +145,36 @@ const Navbar = ({ onMenuClick, showMenu }) => {
 												exit={{ opacity: 0, y: 10 }}
 												className="absolute right-0 mt-2 w-80 bg-slate-800 rounded-lg shadow-xl border border-slate-700 overflow-hidden"
 											>
-												<div className="p-3 border-b border-slate-700">
+												<div className="p-3 border-b border-slate-700 flex items-center justify-between">
 													<h3 className="font-semibold text-white">{t('notifications.title')}</h3>
+													{unreadCount > 0 && (
+														<button
+															onClick={markAllAsRead}
+															className="text-xs text-primary-400 hover:text-primary-300"
+														>
+															Mark all read
+														</button>
+													)}
 												</div>
 												<div className="max-h-64 overflow-y-auto">
 													{notifications.length > 0 ? (
 														notifications.map((n) => (
 															<div
 																key={n.id}
-																className="p-3 border-b border-slate-700 hover:bg-slate-700"
+																onClick={() => !n.isRead && markAsRead(n.id)}
+																className={`p-3 border-b border-slate-700 cursor-pointer ${
+																	n.isRead ? 'opacity-60' : 'hover:bg-slate-700'
+																}`}
 															>
-																<p className="text-sm text-white">{n.title}</p>
-																<p className="text-xs text-slate-400">{n.message}</p>
+																<div className="flex items-start gap-2">
+																	{!n.isRead && (
+																		<span className="w-2 h-2 bg-primary-500 rounded-full mt-1.5 shrink-0" />
+																	)}
+																	<div className="flex-1 min-w-0">
+																		<p className="text-sm text-white truncate">{n.title}</p>
+																		<p className="text-xs text-slate-400 truncate">{n.message}</p>
+																	</div>
+																</div>
 															</div>
 														))
 													) : (

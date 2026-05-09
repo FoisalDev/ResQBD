@@ -7,8 +7,9 @@ const router = express.Router();
 
 router.get('/', optionalAuth, async (req, res) => {
 	try {
+		const isAdmin = req.user && req.user.role === 'admin';
 		const shelters = await prisma.shelter.findMany({
-			where: { status: { not: 'closed' } },
+			where: isAdmin ? {} : { status: { not: 'closed' } },
 			orderBy: { name: 'asc' }
 		});
 		res.json(shelters);

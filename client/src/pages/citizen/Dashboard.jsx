@@ -62,7 +62,7 @@ const CitizenDashboard = () => {
 			{/* Welcome Section */}
 			<div className="glass-card p-6 rounded-xl">
 				<h2 className="text-2xl font-bold text-white">Welcome, {user?.name}!</h2>
-				<p className="text-slate-400 mt-1">Stay safe. Here's your emergency status overview.</p>
+				<p className="text-slate-300 mt-1">Stay safe. Here's your emergency status overview.</p>
 			</div>
 
 			{/* Stats Cards */}
@@ -77,7 +77,7 @@ const CitizenDashboard = () => {
 					>
 						<div className="flex items-center justify-between">
 							<div>
-								<p className="text-slate-400 text-sm">{card.title}</p>
+								<p className="text-slate-300 text-sm font-medium">{card.title}</p>
 								<p className="text-3xl font-bold text-white mt-1">{card.value}</p>
 							</div>
 							<div
@@ -256,7 +256,7 @@ const CitizenDashboard = () => {
 						))}
 					</div>
 				) : (
-					<p className="text-slate-400">No recent SOS requests</p>
+					<p className="text-slate-300">No recent SOS requests</p>
 				)}
 			</div>
 		</div>

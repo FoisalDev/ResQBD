@@ -59,7 +59,7 @@ const VolunteerDashboard = () => {
 		<div className="space-y-6">
 			<div className="glass-card p-6 rounded-xl">
 				<h2 className="text-2xl font-bold text-white">Welcome, {user?.name}!</h2>
-				<p className="text-slate-400 mt-1">Here's your volunteer overview.</p>
+				<p className="text-slate-300 mt-1">Here's your volunteer overview.</p>
 			</div>
 
 			<div className="grid md:grid-cols-3 gap-6">
@@ -73,7 +73,7 @@ const VolunteerDashboard = () => {
 					>
 						<div className="flex items-center justify-between">
 							<div>
-								<p className="text-slate-400 text-sm">{card.title}</p>
+								<p className="text-slate-300 text-sm font-medium">{card.title}</p>
 								<p className="text-3xl font-bold text-white mt-1">{card.value}</p>
 							</div>
 							<div
@@ -101,7 +101,7 @@ const VolunteerDashboard = () => {
 			<div className="glass-card p-6 rounded-xl">
 				<h3 className="text-lg font-semibold text-white mb-4">Assigned Tasks</h3>
 				{loading ? (
-					<p className="text-slate-400">{t('common.loading')}</p>
+					<p className="text-slate-300">{t('common.loading')}</p>
 				) : tasks.length > 0 ? (
 					<div className="space-y-3">
 						{tasks.map((task) => (
@@ -130,7 +130,7 @@ const VolunteerDashboard = () => {
 						))}
 					</div>
 				) : (
-					<p className="text-slate-400">No tasks assigned</p>
+					<p className="text-slate-300">No tasks assigned</p>
 				)}
 			</div>
 		</div>

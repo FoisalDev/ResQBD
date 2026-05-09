@@ -1,0 +1,52 @@
+=== ResQBD - RUN INSTRUCTIONS ===
+
+Prerequisites:
+  - Docker desktop must be running (optional — local MySQL is used instead)
+  - All dependencies already installed
+  - MySQL runs locally on macOS (root user, NO password)
+
+────────────────────────────────
+TERMINAL 1 — AI Service (Python FastAPI)
+────────────────────────────────
+  cd ai-service && ./venv/bin/python -m uvicorn app.main:app --reload
+  Runs on: http://127.0.0.1:8000
+
+────────────────────────────────
+TERMINAL 2 — MySQL + Server (Node.js/Express)
+────────────────────────────────
+  docker compose up -d
+  cd server && npm run dev
+  Runs on: http://127.0.0.1:5001
+
+────────────────────────────────
+TERMINAL 3 — Client (React/Vite)
+────────────────────────────────
+  cd client && npm run dev
+  Runs on: http://localhost:5173
+
+────────────────────────────────
+LOGIN CREDENTIALS
+────────────────────────────────
+  Admin:     admin@gmail.com / admin1234
+             Name: System Administrator
+             
+
+  Volunteer: volunteer@gmail.com / @Resq1234
+             Name: Ahmed Hasan
+             Phone: +8801234567891
+             Skills: First Aid, Water Rescue, First Response
+
+  Citizen:   citizen@gmail.com / @Resq1234
+             Name: Rahim Ahmed
+             Phone: +8801234567892
+
+  ── Signup requires a valid @gmail.com email address
+  ── Use these exact emails & passwords to login
+
+────────────────────────────────
+DEFAULT PORTS
+────────────────────────────────
+  MySQL:    3306
+  AI:       8000
+  Server:   5001
+  Client:   5173
