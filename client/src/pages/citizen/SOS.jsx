@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -11,21 +11,59 @@ const CitizenSOS = () => {
 		emergency_type: 'flood',
 		severity: 3,
 		description: '',
-		latitude: 23.8103,
-		longitude: 90.4125
+		latitude: '',
+		longitude: ''
 	});
 	const [loading, setLoading] = useState(false);
 	const [success, setSuccess] = useState(false);
+	const [error, setError] = useState('');
+	const [locating, setLocating] = useState(true);
+
+	useEffect(() => {
+		if (navigator.geolocation) {
+			navigator.geolocation.getCurrentPosition(
+				(position) => {
+					setFormData((prev) => ({
+						...prev,
+						latitude: position.coords.latitude,
+						longitude: position.coords.longitude
+					}));
+					setLocating(false);
+				},
+				() => {
+					setLocating(false);
+				}
+			);
+		} else {
+			setLocating(false);
+		}
+	}, []);
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
+		setError('');
+
+		if (!formData.latitude || !formData.longitude) {
+			setError(t('sos.locationRequired') || 'Location is required');
+			return;
+		}
+
+		const confirmed = window.confirm(
+			t('sos.confirmSubmit') || 'Send emergency SOS? This will alert authorities.'
+		);
+		if (!confirmed) return;
+
 		setLoading(true);
 		try {
-			await api.post('/sos', formData);
+			await api.post('/sos', {
+				...formData,
+				latitude: parseFloat(formData.latitude),
+				longitude: parseFloat(formData.longitude)
+			});
 			setSuccess(true);
 			setTimeout(() => navigate('/citizen/sos/history'), 2000);
-		} catch (error) {
-			console.error('SOS error:', error);
+		} catch (err) {
+			setError(err.response?.data?.message || t('common.error'));
 		} finally {
 			setLoading(false);
 		}
@@ -33,14 +71,29 @@ const CitizenSOS = () => {
 
 	const getCurrentLocation = () => {
 		if (navigator.geolocation) {
-			navigator.geolocation.getCurrentPosition((position) => {
-				setFormData({
-					...formData,
-					latitude: position.coords.latitude,
-					longitude: position.coords.longitude
-				});
-			});
+			setLocating(true);
+			navigator.geolocation.getCurrentPosition(
+				(position) => {
+					setFormData((prev) => ({
+						...prev,
+						latitude: position.coords.latitude,
+						longitude: position.coords.longitude
+					}));
+					setLocating(false);
+				},
+				() => {
+					setLocating(false);
+				}
+			);
 		}
+	};
+
+	const severityLabels = {
+		1: t('sos.severityLabels.veryLow') || 'Very Low',
+		2: t('sos.severityLabels.low') || 'Low',
+		3: t('sos.severityLabels.medium') || 'Medium',
+		4: t('sos.severityLabels.high') || 'High',
+		5: t('sos.severityLabels.critical') || 'Critical'
 	};
 
 	return (
@@ -56,24 +109,20 @@ const CitizenSOS = () => {
 				{success ? (
 					<div className="text-center py-8">
 						<div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-							<svg
-								className="w-8 h-8 text-green-500"
-								fill="none"
-								stroke="currentColor"
-								viewBox="0 0 24 24"
-							>
-								<path
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									strokeWidth={2}
-									d="M5 13l4 4L19 7"
-								/>
+							<svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
 							</svg>
 						</div>
 						<p className="text-white text-lg">{t('sos.success')}</p>
 					</div>
 				) : (
 					<form onSubmit={handleSubmit} className="space-y-6">
+						{error && (
+							<div className="p-3 bg-danger/20 border border-danger/50 rounded-lg text-danger text-sm">
+								{error}
+							</div>
+						)}
+
 						<div>
 							<label className="block text-sm font-medium text-slate-300 mb-2">
 								{t('sos.type')}
@@ -93,16 +142,20 @@ const CitizenSOS = () => {
 
 						<div>
 							<label className="block text-sm font-medium text-slate-300 mb-2">
-								{t('sos.severity')}: {formData.severity}/5
+								{t('sos.severity')}: {formData.severity}/5 - {severityLabels[formData.severity]}
 							</label>
-							<input
-								type="range"
-								min="1"
-								max="5"
-								value={formData.severity}
-								onChange={(e) => setFormData({ ...formData, severity: parseInt(e.target.value) })}
-								className="w-full"
-							/>
+							<div className="flex items-center gap-2">
+								<span className="text-xs text-slate-500">1</span>
+								<input
+									type="range"
+									min="1"
+									max="5"
+									value={formData.severity}
+									onChange={(e) => setFormData({ ...formData, severity: parseInt(e.target.value) })}
+									className="flex-1"
+								/>
+								<span className="text-xs text-slate-500">5</span>
+							</div>
 						</div>
 
 						<div>
@@ -127,7 +180,7 @@ const CitizenSOS = () => {
 									step="any"
 									value={formData.latitude}
 									onChange={(e) =>
-										setFormData({ ...formData, latitude: parseFloat(e.target.value) })
+										setFormData({ ...formData, latitude: e.target.value })
 									}
 									placeholder="Latitude"
 									className="flex-1 px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white"
@@ -137,7 +190,7 @@ const CitizenSOS = () => {
 									step="any"
 									value={formData.longitude}
 									onChange={(e) =>
-										setFormData({ ...formData, longitude: parseFloat(e.target.value) })
+										setFormData({ ...formData, longitude: e.target.value })
 									}
 									placeholder="Longitude"
 									className="flex-1 px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white"
@@ -146,9 +199,10 @@ const CitizenSOS = () => {
 							<button
 								type="button"
 								onClick={getCurrentLocation}
-								className="mt-2 text-sm text-primary-500 hover:text-primary-400"
+								disabled={locating}
+								className="mt-2 text-sm text-primary-500 hover:text-primary-400 disabled:text-slate-500"
 							>
-								{t('sos.useCurrentLocation')}
+								{locating ? 'Locating...' : t('sos.useCurrentLocation')}
 							</button>
 						</div>
 
