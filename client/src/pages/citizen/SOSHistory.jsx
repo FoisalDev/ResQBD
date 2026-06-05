@@ -50,7 +50,7 @@ const CitizenSOSHistory = () => {
 		);
 		if (!confirmed) return;
 		try {
-			await api.patch(`/sos/${id}/status`, { status: 'cancelled' });
+			await api.patch(`/sos/${id}/cancel`);
 			setSosList((prev) =>
 				prev.map((s) => (s.id === id ? { ...s, status: 'cancelled' } : s))
 			);

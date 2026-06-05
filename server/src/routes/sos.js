@@ -151,4 +151,46 @@ router.patch(
 	}
 );
 
+router.patch(
+	'/:id/cancel',
+	authenticate,
+	authorize('citizen'),
+	async (req, res) => {
+		try {
+			const sos = await prisma.sOSRequest.findUnique({
+				where: { id: parseInt(req.params.id) }
+			});
+
+			if (!sos) {
+				return res.status(404).json({ message: 'SOS not found' });
+			}
+
+			if (sos.userId !== req.user.id) {
+				return res.status(403).json({ message: 'Access denied' });
+			}
+
+			if (sos.status !== 'pending') {
+				return res.status(400).json({ message: 'Only pending SOS can be cancelled' });
+			}
+
+			const updated = await prisma.sOSRequest.update({
+				where: { id: parseInt(req.params.id) },
+				data: { status: 'cancelled' },
+				include: {
+					user: {
+						select: { id: true, name: true }
+					}
+				}
+			});
+
+			io.to('role:admin').emit('sos:updated', updated);
+
+			res.json(updated);
+		} catch (error) {
+			console.error('Cancel SOS error:', error);
+			res.status(500).json({ message: 'Failed to cancel SOS' });
+		}
+	}
+);
+
 export default router;
