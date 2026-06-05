@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
-import { useAuth } from '../../hooks';
+import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
+import { formatDate } from '../../utils/date';
 
 const CitizenDashboard = () => {
 	const { t } = useTranslation();
@@ -238,7 +238,7 @@ const CitizenDashboard = () => {
 								<div>
 									<p className="text-white font-medium">{sos.emergency_type}</p>
 									<p className="text-sm text-slate-400">
-										{new Date(sos.created_at).toLocaleDateString()}
+										{formatDate(sos.created_at)}
 									</p>
 								</div>
 								<span

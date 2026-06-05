@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import api from '../../services/api';
+import { formatDate } from '../../utils/date';
 
 const AdminReports = () => {
 	const { t } = useTranslation();
@@ -57,7 +58,7 @@ const AdminReports = () => {
 								</div>
 								<p className="text-slate-400 text-sm mb-2">{report.description}</p>
 								<p className="text-slate-500 text-xs mb-3">
-									By: {report.user?.name} | {new Date(report.created_at).toLocaleString()}
+									By: {report.user?.name} | {formatDate(report.created_at, { withTime: true })}
 								</p>
 								{report.status === 'submitted' && (
 									<div className="flex gap-2">

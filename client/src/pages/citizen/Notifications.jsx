@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import api from '../../services/api';
+import { formatDate } from '../../utils/date';
 
 const CitizenNotifications = () => {
 	const { t } = useTranslation();
@@ -77,7 +78,7 @@ const CitizenNotifications = () => {
 										<h4 className="text-white font-medium">{notification.title}</h4>
 										<p className="text-slate-400 text-sm mt-1">{notification.message}</p>
 										<p className="text-slate-500 text-xs mt-2">
-											{new Date(notification.created_at).toLocaleString()}
+											{formatDate(notification.created_at, { withTime: true })}
 										</p>
 									</div>
 								</div>

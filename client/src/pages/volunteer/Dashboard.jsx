@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { useAuth } from '../../hooks';
 import api from '../../services/api';
+import { formatDate } from '../../utils/date';
 
 const VolunteerDashboard = () => {
 	const { t } = useTranslation();
@@ -112,7 +112,7 @@ const VolunteerDashboard = () => {
 								<div>
 									<p className="text-white font-medium">{task.task_type}</p>
 									<p className="text-sm text-slate-400">
-										{new Date(task.created_at).toLocaleDateString()}
+										{formatDate(task.created_at)}
 									</p>
 								</div>
 								<span

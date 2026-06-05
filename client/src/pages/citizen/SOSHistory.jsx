@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import api from '../../services/api';
+import { formatDate } from '../../utils/date';
 
 const CitizenSOSHistory = () => {
 	const { t } = useTranslation();
@@ -60,7 +61,7 @@ const CitizenSOSHistory = () => {
 								</div>
 								<p className="text-slate-400 text-sm">{sos.description}</p>
 								<p className="text-slate-500 text-xs mt-2">
-									{new Date(sos.created_at).toLocaleString()}
+									{formatDate(sos.created_at, { withTime: true })}
 								</p>
 							</div>
 						))}

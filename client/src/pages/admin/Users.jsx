@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import api from '../../services/api';
+import { formatDate } from '../../utils/date';
 
 const AdminUsers = () => {
 	const { t } = useTranslation();
@@ -74,7 +75,7 @@ const AdminUsers = () => {
 											</span>
 										</td>
 										<td className="py-3 text-slate-400">
-											{new Date(user.createdAt).toLocaleDateString()}
+											{formatDate(user.createdAt)}
 										</td>
 										<td className="py-3">
 											<button
