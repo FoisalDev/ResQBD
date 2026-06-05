@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
+import { useAuth } from '../../hooks';
 import api from '../../services/api';
 import { formatDate } from '../../utils/date';
 
