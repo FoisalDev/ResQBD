@@ -38,12 +38,20 @@ const upload = multer({
 	}
 });
 
+const isValidPhone = (phone) => /^01[3-9]\d{8}$/.test(phone);
+
 router.post(
 	'/register',
 	[
 		body('email').isEmail().normalizeEmail(),
 		body('password').isLength({ min: 6 }),
-		body('name').trim().notEmpty()
+		body('name').trim().notEmpty(),
+		body('phone').optional({ values: 'falsy' }).custom((value) => {
+			if (value && !isValidPhone(value)) {
+				throw new Error('Please enter a valid Bangladesh mobile number (e.g., 01919933481)');
+			}
+			return true;
+		})
 	],
 	async (req, res) => {
 		try {
@@ -191,7 +199,12 @@ router.put(
 	authenticate,
 	[
 		body('name').optional().trim().notEmpty(),
-		body('phone').optional(),
+		body('phone').optional({ values: 'falsy' }).custom((value) => {
+			if (value && !isValidPhone(value)) {
+				throw new Error('Please enter a valid Bangladesh mobile number (e.g., 01919933481)');
+			}
+			return true;
+		}),
 		body('languagePref').optional().isIn(['en', 'bn'])
 	],
 	async (req, res) => {

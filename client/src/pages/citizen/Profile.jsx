@@ -15,6 +15,7 @@ const CitizenProfile = () => {
 		languagePref: i18n.language
 	});
 	const [error, setError] = useState('');
+	const [phoneError, setPhoneError] = useState('');
 
 	useEffect(() => {
 		setFormData({
@@ -28,8 +29,20 @@ const CitizenProfile = () => {
 	const [avatarPreview, setAvatarPreview] = useState(null);
 	const [selectedFile, setSelectedFile] = useState(null);
 
+	const isValidPhone = (phone) => /^01[3-9]\d{8}$/.test(phone);
+
+	const handlePhoneChange = (value) => {
+		setFormData({ ...formData, phone: value });
+		if (value && !isValidPhone(value)) {
+			setPhoneError('Please enter a valid Bangladesh mobile number (e.g., 01919933481)');
+		} else {
+			setPhoneError('');
+		}
+	};
+
 	const handleSubmit = async (e) => {
 		e.preventDefault();
+		if (phoneError) return;
 		setLoading(true);
 		setError('');
 		try {
@@ -66,6 +79,7 @@ const CitizenProfile = () => {
 		setError('');
 		setSelectedFile(null);
 		setAvatarPreview(null);
+		setPhoneError('');
 		setIsEditing(false);
 	};
 
@@ -219,12 +233,15 @@ const CitizenProfile = () => {
 							{t('auth.phone')}
 						</label>
 						{isEditing ? (
-							<input
-								type="tel"
-								value={formData.phone}
-								onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-								className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white"
-							/>
+							<>
+								<input
+									type="tel"
+									value={formData.phone}
+									onChange={(e) => handlePhoneChange(e.target.value)}
+									className={`w-full px-4 py-3 bg-slate-700/50 border rounded-lg text-white ${phoneError ? 'border-danger' : 'border-slate-600'}`}
+								/>
+								{phoneError && <p className="text-danger text-xs mt-1">{phoneError}</p>}
+							</>
 						) : (
 							<p className="text-white py-3 px-1">{user?.phone || '—'}</p>
 						)}
