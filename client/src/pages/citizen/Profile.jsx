@@ -106,6 +106,15 @@ const CitizenProfile = () => {
 		}
 	};
 
+	const handleRemoveAvatar = async () => {
+		try {
+			const updatedUser = await api.delete('/auth/avatar');
+			updateUser(updatedUser.data);
+		} catch (error) {
+			console.error('Avatar remove error:', error);
+		}
+	};
+
 	return (
 		<div className="max-w-2xl mx-auto">
 			<motion.div
@@ -177,6 +186,16 @@ const CitizenProfile = () => {
 											d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
 										/>
 									</svg>
+								</button>
+							)}
+							{isEditing && user?.avatarUrl && !selectedFile && (
+								<button
+									type="button"
+									onClick={handleRemoveAvatar}
+									className="absolute -bottom-1 left-0 w-8 h-8 bg-red-600 rounded-full flex items-center justify-center hover:bg-red-700 transition-colors text-white text-xs font-bold"
+									title="Remove photo"
+								>
+									✕
 								</button>
 							)}
 						</div>

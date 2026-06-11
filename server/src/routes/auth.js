@@ -282,4 +282,27 @@ router.post('/avatar', authenticate, upload.single('avatar'), async (req, res) =
 	}
 });
 
+router.delete('/avatar', authenticate, async (req, res) => {
+	try {
+		const user = await prisma.user.update({
+			where: { id: req.user.id },
+			data: { avatarUrl: null },
+			select: {
+				id: true,
+				name: true,
+				email: true,
+				phone: true,
+				role: true,
+				avatarUrl: true,
+				languagePref: true
+			}
+		});
+
+		res.json(user);
+	} catch (error) {
+		console.error('Avatar remove error:', error);
+		res.status(500).json({ message: 'Failed to remove avatar' });
+	}
+});
+
 export default router;
