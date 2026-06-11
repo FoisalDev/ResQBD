@@ -48,7 +48,7 @@ router.post(
 		body('name').trim().notEmpty(),
 		body('phone').optional({ values: 'falsy' }).custom((value) => {
 			if (value && !isValidPhone(value)) {
-				throw new Error('Please enter a valid Bangladesh mobile number (e.g., 01919933481)');
+				throw new Error('Please enter a valid Bangladesh mobile number (e.g., +880 XXXX XXXXXX)');
 			}
 			return true;
 		})
@@ -201,7 +201,7 @@ router.put(
 		body('name').optional().trim().notEmpty(),
 		body('phone').optional({ values: 'falsy' }).custom((value) => {
 			if (value && !isValidPhone(value)) {
-				throw new Error('Please enter a valid Bangladesh mobile number (e.g., 01919933481)');
+				throw new Error('Please enter a valid Bangladesh mobile number (e.g., +880 XXXX XXXXXX)');
 			}
 			return true;
 		}),

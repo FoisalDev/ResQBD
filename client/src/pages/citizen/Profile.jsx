@@ -34,7 +34,7 @@ const CitizenProfile = () => {
 	const handlePhoneChange = (value) => {
 		setFormData({ ...formData, phone: value });
 		if (value && !isValidPhone(value)) {
-			setPhoneError('Please enter a valid Bangladesh mobile number (e.g., 01919933481)');
+			setPhoneError('Please enter a valid Bangladesh mobile number (e.g., +880 XXXX XXXXXX)');
 		} else {
 			setPhoneError('');
 		}
