@@ -14,15 +14,15 @@ const riskColors = {
 const shelterMark = { bg: '#3B82F6', border: '#2563EB', shadow: 'rgba(59,130,246,0.5)' };
 
 const weatherIcons = {
-	thunderstorm: { path: 'M17 8.5c0-1.5-1.2-2.7-2.7-2.7-.3 0-.6 0-.8.1A4.5 4.5 0 009 2.5a4.5 4.5 0 00-4.4 3.4A3.5 3.5 0 005 12.5h10a3.5 3.5 0 002-6.3.3.3 0 000-.2z M12 10l-2 4h2.5l-1.5 4', label: 'Thunderstorm', color: '#6366F1' },
-	'heavy-rain': { path: 'M17 9c0-1.7-1.3-3-3-3-.3 0-.7 0-1 .1A5 5 0 009 1a5 5 0 00-4.8 4.1A4 4 0 005 13h10a4 4 0 002-7.3z M8 13.5v2 M8 17.5v2 M12 13.5v2 M12 17.5v2', label: 'Heavy Rain', color: '#3B82F6' },
-	rain: { path: 'M17 9c0-1.7-1.3-3-3-3-.3 0-.7 0-1 .1A5 5 0 009 1a5 5 0 00-4.8 4.1A4 4 0 005 13h10a4 4 0 002-7.3z M9 14v3 M13 14v3', label: 'Rain', color: '#60A5FA' },
-	sunny: { path: 'M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm0 14a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM4 10a1 1 0 011 1v0a1 1 0 11-2 0v0A1 1 0 014 10zm14 0a1 1 0 011 1v0a1 1 0 11-2 0v0A1 1 0 0118 10zm-1.17-5.66a1 1 0 011.41 0l.71.71a1 1 0 11-1.41 1.41l-.71-.71a1 1 0 010-1.41zM5.05 13.54a1 1 0 011.41 0l.71.71a1 1 0 11-1.41 1.41l-.71-.71a1 1 0 010-1.41zM18.39 14.66a1 1 0 010 1.41l-.71.71a1 1 0 11-1.41-1.41l.71-.71a1 1 0 011.41 0zM5.05 6.46a1 1 0 010 1.41l-.71.71a1 1 0 11-1.41-1.41l.71-.71a1 1 0 011.41 0z M10 6a4 4 0 100 8 4 4 0 000-8z', label: 'Sunny', color: '#F59E0B' },
-	cloudy: { path: 'M17 9c0-1.7-1.3-3-3-3-.3 0-.7 0-1 .1A5 5 0 009 1a5 5 0 00-4.8 4.1A4 4 0 005 13h10a4 4 0 002-7.3z', label: 'Cloudy', color: '#64748B' },
-	foggy: { path: 'M4 8h12M4 11h10M4 14h12', label: 'Foggy', color: '#94A3B8' },
-	windy: { path: 'M17 9c0-1.7-1.3-3-3-3-.3 0-.7 0-1 .1A5 5 0 009 1a5 5 0 00-4.8 4.1A4 4 0 005 13h10a4 4 0 002-7.3z M6 14.5h7M4 17h10', label: 'Windy', color: '#67E8F9' },
-	hot: { path: 'M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41 M12 6a6 6 0 100 12 6 6 0 000-12z m-1 4h2v3h-2z m0 4h2v1h-2z', label: 'Extreme Heat', color: '#EF4444' },
-	cold: { path: 'M12 2v6m0 0l-2-2m2 2l2-2M12 22v-6m0 0l2 2m-2-2l-2 2M4.93 4.93l4.24 4.24m0 0l-2 2m2-2l-2-2M19.07 4.93l-4.24 4.24m0 0l2 2m-2-2l2-2M4.93 19.07l4.24-4.24m0 0l2 2m-2-2l-2 2M19.07 19.07l-4.24-4.24m0 0l-2 2m2-2l-2-2', label: 'Cold', color: '#06B6D4' }
+	thunderstorm: { path: '<path d="M16 7a4 4 0 00-3.7-2.4 5 5 0 00-9.2 1.8A3.5 3.5 0 004 13.5h11a3.5 3.5 0 001-6.5z"/><path d="M11 9l-2 3.5h2.5L10 16" stroke-width="1.8"/>', label: 'Thunderstorm', color: '#6366F1' },
+	'heavy-rain': { path: '<path d="M16 7a4 4 0 00-3.7-2.4 5 5 0 00-9.2 1.8A3.5 3.5 0 004 13.5h11a3.5 3.5 0 001-6.5z"/><path d="M7.5 15v1.5M7.5 19v1M11.5 15v1.5M11.5 19v1" stroke-width="1.5" stroke-linecap="round"/>', label: 'Heavy Rain', color: '#3B82F6' },
+	rain: { path: '<path d="M16 7a4 4 0 00-3.7-2.4 5 5 0 00-9.2 1.8A3.5 3.5 0 004 13.5h11a3.5 3.5 0 001-6.5z"/><path d="M8.5 15v2M11.5 15v2" stroke-width="1.5" stroke-linecap="round"/>', label: 'Rain', color: '#60A5FA' },
+	sunny: { path: '<circle cx="10" cy="10" r="4"/><path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.93 4.93l1.41 1.41M13.66 13.66l1.41 1.41M17.07 4.93l-1.41 1.41M8.34 13.66l-1.41 1.41" stroke-width="1.5" stroke-linecap="round"/>', label: 'Sunny', color: '#F59E0B' },
+	cloudy: { path: '<path d="M16 7a4 4 0 00-3.7-2.4 5 5 0 00-9.2 1.8A3.5 3.5 0 004 13.5h11a3.5 3.5 0 001-6.5z"/>', label: 'Cloudy', color: '#64748B' },
+	foggy: { path: '<path d="M4 8.5h12M4 11.5h10M4 14.5h11" stroke-width="1.8" stroke-linecap="round"/>', label: 'Foggy', color: '#94A3B8' },
+	windy: { path: '<path d="M16 7a4 4 0 00-3.7-2.4 5 5 0 00-9.2 1.8A3.5 3.5 0 004 13.5h11a3.5 3.5 0 001-6.5z"/><path d="M6 15.5h7M4 18h10" stroke-width="1.5" stroke-linecap="round"/>', label: 'Windy', color: '#67E8F9' },
+	hot: { path: '<path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.93 4.93l1.41 1.41M13.66 13.66l1.41 1.41M17.07 4.93l-1.41 1.41M8.34 13.66l-1.41 1.41" stroke-width="1.2" stroke-linecap="round"/><circle cx="10" cy="10" r="3" fill="none"/><path d="M9 8h2v3H9zM9 12h2v1H9z" fill="currentColor"/>', label: 'Extreme Heat', color: '#EF4444' },
+	cold: { path: '<path d="M10 3v6m0 0L8 7m2 2l2-2M10 21v-6m0 0l2 2m-2-2l-2 2M4.93 4.93l4.24 4.24m0 0l-2 2m2-2l-2-2M19.07 4.93l-4.24 4.24m0 0l2 2m-2-2l2-2M4.93 19.07l4.24-4.24m0 0l2 2m-2-2l-2 2M19.07 19.07l-4.24-4.24m0 0l-2 2m2-2l-2-2" stroke-width="1.2" stroke-linecap="round"/>', label: 'Cold', color: '#06B6D4' }
 };
 
 const getWeatherCondition = (wd) => {
@@ -101,9 +101,7 @@ const RiskPopupContent = ({ pred, getRiskColor, isWaterLevelFallback, getDataSou
 		<div className="min-w-[240px]">
 			<div className="flex items-center justify-between mb-2">
 				<div className="flex items-center gap-2">
-					<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke={wi.color} stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-						{wi.path}
-					</svg>
+					<div dangerouslySetInnerHTML={{__html: `<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="${wi.color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${wi.path}</svg>`}} />
 					<h3 className="font-semibold text-base" style={{color:'#1e293b'}}>{pred.district}</h3>
 				</div>
 				<span className="px-2 py-0.5 rounded text-xs font-medium" style={{background:c.bg+'22', color:c.bg, border:`1px solid ${c.bg}44`}}>{pred.risk_category}</span>
@@ -120,9 +118,7 @@ const RiskPopupContent = ({ pred, getRiskColor, isWaterLevelFallback, getDataSou
 			{wd && (
 				<>
 					<div className="text-xs text-slate-500 mb-1.5 flex items-center gap-1">
-						<svg width="12" height="12" viewBox="0 0 20 20" fill="none" stroke={wi.color} stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-							{wi.path}
-						</svg>
+						<div dangerouslySetInnerHTML={{__html: `<svg width="12" height="12" viewBox="0 0 20 20" fill="none" stroke="${wi.color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${wi.path}</svg>`}} />
 						<span className="font-medium" style={{color: wi.color}}>{wi.label}</span>
 					</div>
 					<div className="grid grid-cols-2 gap-2 text-xs text-slate-600 mb-2">
@@ -356,9 +352,7 @@ const RiskOverview = () => {
 							<div className="absolute bottom-4 left-4 z-[1000] flex flex-wrap gap-1.5 max-w-[260px]">
 								{Object.values(weatherIcons).map((wi) => (
 									<div key={wi.label} className="flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] bg-white/85 backdrop-blur-sm text-slate-600 shadow border border-slate-100">
-										<svg width="12" height="12" viewBox="0 0 20 20" fill="none" stroke={wi.color} stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-											{wi.path}
-										</svg>
+										<div dangerouslySetInnerHTML={{__html: `<svg width="12" height="12" viewBox="0 0 20 20" fill="none" stroke="${wi.color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${wi.path}</svg>`}} />
 										<span>{wi.label}</span>
 									</div>
 								))}
