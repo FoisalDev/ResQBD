@@ -78,12 +78,14 @@ const AdminUsers = () => {
 											{formatDate(user.createdAt)}
 										</td>
 										<td className="py-3">
-											<button
-												onClick={() => deleteUser(user.id)}
-												className="text-danger hover:text-red-400"
-											>
-												Delete
-											</button>
+											{user.role !== 'admin' && (
+												<button
+													onClick={() => deleteUser(user.id)}
+													className="text-danger hover:text-red-400"
+												>
+													Delete
+												</button>
+											)}
 										</td>
 									</tr>
 								))}
