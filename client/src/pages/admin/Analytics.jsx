@@ -9,6 +9,7 @@ import {
 	CartesianGrid,
 	Tooltip,
 	ResponsiveContainer,
+	Legend,
 	PieChart,
 	Pie,
 	Cell,
@@ -66,16 +67,32 @@ const AdminAnalytics = () => {
 					<motion.div
 						initial={{ opacity: 0, y: 20 }}
 						animate={{ opacity: 1, y: 0 }}
-						className="glass-card p-6 rounded-xl"
+						className="glass-card p-6 rounded-xl md:col-span-2"
 					>
 						<h3 className="text-lg font-semibold text-white mb-4">Incidents Over Time</h3>
 						<ResponsiveContainer width="100%" height={300}>
 							<LineChart data={incidents}>
 								<CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-								<XAxis dataKey="date" stroke="#9CA3AF" />
-								<YAxis stroke="#9CA3AF" />
-								<Tooltip contentStyle={{ backgroundColor: '#1F2937', border: 'none' }} />
-								<Line type="monotone" dataKey="count" stroke="#10B981" strokeWidth={2} />
+								<XAxis
+									dataKey="date"
+									stroke="#9CA3AF"
+									tickFormatter={(val) => {
+										const d = new Date(val + 'T00:00:00');
+										return `${d.getDate()}/${d.getMonth() + 1}`;
+									}}
+								/>
+								<YAxis stroke="#9CA3AF" allowDecimals={false} />
+								<Tooltip
+									contentStyle={{ backgroundColor: '#1F2937', border: 'none' }}
+									labelFormatter={(val) => {
+										const d = new Date(val + 'T00:00:00');
+										return d.toLocaleDateString();
+									}}
+								/>
+								<Legend wrapperStyle={{ color: '#9CA3AF' }} />
+								<Line type="monotone" dataKey="count" stroke="#10B981" strokeWidth={2} name="Total" />
+								<Line type="monotone" dataKey="sos_count" stroke="#EF4444" strokeWidth={1.5} name="SOS" dot={false} />
+								<Line type="monotone" dataKey="report_count" stroke="#F59E0B" strokeWidth={1.5} name="Reports" dot={false} />
 							</LineChart>
 						</ResponsiveContainer>
 					</motion.div>
@@ -111,7 +128,7 @@ const AdminAnalytics = () => {
 						initial={{ opacity: 0, y: 20 }}
 						animate={{ opacity: 1, y: 0 }}
 						transition={{ delay: 0.2 }}
-						className="glass-card p-6 rounded-xl md:col-span-2"
+						className="glass-card p-6 rounded-xl"
 					>
 						<h3 className="text-lg font-semibold text-white mb-4">Relief by Type</h3>
 						<ResponsiveContainer width="100%" height={300}>

@@ -48,26 +48,56 @@ router.get('/analytics/incidents', authenticate, authorize('admin'), async (req,
 	try {
 		const thirtyDaysAgo = new Date();
 		thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+		thirtyDaysAgo.setHours(0, 0, 0, 0);
 
-		const incidents = await prisma.$queryRaw`
-      SELECT DATE(created_at) as date, COUNT(*) as count, 'sos' as type
+		const sosCounts = await prisma.$queryRaw`
+      SELECT DATE(created_at) as date, COUNT(*) as count
       FROM sos_requests
       WHERE created_at >= ${thirtyDaysAgo}
       GROUP BY DATE(created_at)
-      UNION ALL
-      SELECT DATE(created_at) as date, COUNT(*) as count, 'report' as type
+    `;
+
+		const reportCounts = await prisma.$queryRaw`
+      SELECT DATE(created_at) as date, COUNT(*) as count
       FROM disaster_reports
       WHERE created_at >= ${thirtyDaysAgo}
       GROUP BY DATE(created_at)
-      ORDER BY date DESC
     `;
 
-		const serialized = incidents.map((i) => ({
-			date: i.date,
-			count: Number(i.count),
-			type: i.type
-		}));
-		res.json(serialized);
+		const toDateStr = (d) => {
+			if (!d) return null;
+			if (d instanceof Date) return d.toISOString().split('T')[0];
+			const s = String(d);
+			return s.includes('T') ? s.split('T')[0] : s;
+		};
+
+		const sosMap = {};
+		for (const row of sosCounts) {
+			const ds = toDateStr(row.date);
+			if (ds) sosMap[ds] = Number(row.count);
+		}
+		const reportMap = {};
+		for (const row of reportCounts) {
+			const ds = toDateStr(row.date);
+			if (ds) reportMap[ds] = Number(row.count);
+		}
+
+		const result = [];
+		for (let i = 29; i >= 0; i--) {
+			const d = new Date();
+			d.setDate(d.getDate() - i);
+			const dateStr = d.toISOString().split('T')[0];
+			const sosCount = sosMap[dateStr] || 0;
+			const reportCount = reportMap[dateStr] || 0;
+			result.push({
+				date: dateStr,
+				count: sosCount + reportCount,
+				sos_count: sosCount,
+				report_count: reportCount
+			});
+		}
+
+		res.json(result);
 	} catch (error) {
 		console.error('Incident analytics error:', error.message);
 		res.status(500).json({ message: 'Failed to get incident analytics' });
