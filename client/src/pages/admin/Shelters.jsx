@@ -42,6 +42,7 @@ const AdminShelters = () => {
 	const [shelters, setShelters] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [showForm, setShowForm] = useState(false);
+	const [editingShelter, setEditingShelter] = useState(null);
 	const [selectedDistrict, setSelectedDistrict] = useState('');
 	const [mapCenter, setMapCenter] = useState([23.8103, 90.4125]);
 	const [markerPos, setMarkerPos] = useState(null);
@@ -102,13 +103,17 @@ const AdminShelters = () => {
 			return;
 		}
 		try {
-			await api.post('/shelters', formData);
+			if (editingShelter) {
+				await api.put(`/shelters/${editingShelter.id}`, formData);
+			} else {
+				await api.post('/shelters', formData);
+			}
 			const response = await api.get('/shelters');
 			setShelters(response.data);
 			setShowForm(false);
 			resetForm();
 		} catch (error) {
-			console.error('Error creating shelter:', error);
+			console.error('Error saving shelter:', error);
 		}
 	};
 
@@ -122,9 +127,26 @@ const AdminShelters = () => {
 			contact_phone: '',
 			status: 'open'
 		});
+		setEditingShelter(null);
 		setSelectedDistrict('');
 		setMarkerPos(null);
 		setMapCenter([23.8103, 90.4125]);
+	};
+
+	const startEdit = (shelter) => {
+		setEditingShelter(shelter);
+		setFormData({
+			name: shelter.name,
+			address: shelter.address,
+			latitude: shelter.latitude,
+			longitude: shelter.longitude,
+			capacity: shelter.capacity,
+			contact_phone: shelter.contact_phone || '',
+			status: shelter.status
+		});
+		setMarkerPos([parseFloat(shelter.latitude), parseFloat(shelter.longitude)]);
+		setMapCenter([parseFloat(shelter.latitude), parseFloat(shelter.longitude)]);
+		setShowForm(true);
 	};
 
 	const updateStatus = async (id, status) => {
@@ -151,7 +173,7 @@ const AdminShelters = () => {
 			<div className="flex justify-between items-center">
 				<h2 className="text-2xl font-bold text-white">{t('admin.shelters')}</h2>
 				<button
-					onClick={() => setShowForm(!showForm)}
+					onClick={() => { setShowForm(!showForm); if (!showForm) resetForm(); }}
 					className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700"
 				>
 					Add Shelter
@@ -164,6 +186,18 @@ const AdminShelters = () => {
 					animate={{ opacity: 1, y: 0 }}
 					className="glass-card p-6 rounded-xl"
 				>
+					<div className="flex justify-between items-center mb-4">
+						<h3 className="text-lg font-semibold text-white">
+							{editingShelter ? 'Edit Shelter' : 'Add New Shelter'}
+						</h3>
+						<button
+							type="button"
+							onClick={() => { setShowForm(false); resetForm(); }}
+							className="text-slate-400 hover:text-white"
+						>
+							✕
+						</button>
+					</div>
 					<form onSubmit={handleSubmit} className="space-y-4">
 						<div className="grid md:grid-cols-2 gap-4">
 							<input
@@ -252,7 +286,7 @@ const AdminShelters = () => {
 							type="submit"
 							className="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700"
 						>
-							Create
+							{editingShelter ? 'Update' : 'Create'}
 						</button>
 					</form>
 				</motion.div>
@@ -294,6 +328,12 @@ const AdminShelters = () => {
 								<p className="text-slate-400 text-xs mt-1">📞 {shelter.contact_phone}</p>
 							)}
 							<div className="mt-4 flex gap-2">
+								<button
+									onClick={() => startEdit(shelter)}
+									className="px-3 py-1 bg-blue-600/20 text-blue-400 rounded text-sm hover:bg-blue-600/30"
+								>
+									Edit
+								</button>
 								<button
 									onClick={() => updateStatus(shelter.id, 'open')}
 									className="px-3 py-1 bg-green-600/20 text-green-500 rounded text-sm hover:bg-green-600/30"
