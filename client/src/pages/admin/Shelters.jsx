@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import api from '../../services/api';
 
@@ -16,25 +16,100 @@ const DIVISIONS = {
 	'Mymensingh': { lat: 24.7471, lng: 90.4203 },
 };
 
-const shelterIcon = new L.Icon({
-	iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png',
-	iconSize: [25, 41],
-	iconAnchor: [12, 41],
-});
+const markerColors = {
+	open: { bg: '#10B981', border: '#059669', shadow: 'rgba(16,185,129,0.5)', glow: 'rgba(16,185,129,0.25)' },
+	full: { bg: '#F59E0B', border: '#D97706', shadow: 'rgba(245,158,11,0.5)', glow: 'rgba(245,158,11,0.2)' },
+	closed: { bg: '#6B7280', border: '#4B5563', shadow: 'rgba(107,114,128,0.5)', glow: 'rgba(107,114,128,0.2)' }
+};
 
-const selectedIcon = new L.Icon({
-	iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
-	iconSize: [25, 41],
-	iconAnchor: [12, 41],
-});
-
-function LocationMarker({ position, onMapClick }) {
-	useMapEvents({
-		click(e) {
-			onMapClick([e.latlng.lat, e.latlng.lng]);
-		},
+const createShelterIcon = (status) => {
+	const c = markerColors[status] || markerColors.open;
+	return L.divIcon({
+		className: '',
+		html: `
+			<div class="shelter-marker" data-status="${status}" style="
+				width:34px;height:34px;background:${c.bg};border:3px solid ${c.border};
+				border-radius:50%;box-shadow:0 0 20px ${c.shadow},0 4px 12px rgba(0,0,0,0.3);
+				display:flex;align-items:center;justify-content:center;
+				transition:transform 0.3s ease;cursor:pointer;
+				${status === 'open' ? 'animation:shelterPulse 2s ease-in-out infinite;' : ''}
+			">
+				<svg width="14" height="14" viewBox="0 0 24 24" fill="white">
+					<path d="M19 9.799l-7-5.522-7 5.522v10.478h14v-10.478zm-7-7.299l9 7.101v12.399h-18v-12.399l9-7.101z"/>
+					<path d="M11 15h2v4h-2z"/><path d="M8 11h8v2h-8z"/>
+				</svg>
+			</div>
+		`,
+		iconSize: [34, 34], iconAnchor: [17, 17], popupAnchor: [0, -22]
 	});
-	return position ? <Marker position={position} icon={selectedIcon} /> : null;
+};
+
+const createSelectedIcon = (isEditing) => L.divIcon({
+	className: '',
+	html: `
+		<div style="
+			width:38px;height:38px;background:#3B82F6;border:3px solid #2563EB;
+			border-radius:50%;box-shadow:0 0 24px rgba(59,130,246,0.6),0 4px 12px rgba(0,0,0,0.4);
+			display:flex;align-items:center;justify-content:center;
+			animation:shelterPulse 1.5s ease-in-out infinite;
+			transition:transform 0.3s ease;
+		">
+			<svg width="16" height="16" viewBox="0 0 24 24" fill="white">
+				<path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/>
+			</svg>
+		</div>
+	`,
+	iconSize: [38, 38], iconAnchor: [19, 19], popupAnchor: [0, -24]
+});
+
+const PopupContent = ({ shelter, onEdit, onStatusChange }) => {
+	const c = markerColors[shelter.status] || markerColors.open;
+	const pct = shelter.capacity > 0 ? Math.round((shelter.current_occupancy / shelter.capacity) * 100) : 0;
+	return (
+		<div className="min-w-[200px]">
+			<div className="flex items-center justify-between mb-2">
+				<h3 className="font-semibold text-base" style={{color: '#1e293b'}}>{shelter.name}</h3>
+				<span className="px-2 py-0.5 rounded text-xs font-medium" style={{
+					background: c.bg + '22', color: c.bg, border: `1px solid ${c.bg}44`
+				}}>{shelter.status}</span>
+			</div>
+			<p className="text-xs text-slate-500 mb-2">{shelter.address}</p>
+			<div className="mb-2">
+				<div className="flex justify-between text-xs text-slate-600 mb-1">
+					<span>Capacity</span>
+					<span>{shelter.current_occupancy} / {shelter.capacity}</span>
+				</div>
+				<div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+					<div className="h-full rounded-full transition-all duration-500" style={{
+						width: Math.min(pct, 100) + '%', background: c.bg
+					}} />
+				</div>
+			</div>
+			{shelter.contact_phone && (
+				<p className="text-xs text-slate-500 mb-2">📞 {shelter.contact_phone}</p>
+			)}
+			<div className="flex gap-1.5 mt-2 pt-2 border-t border-slate-100">
+				<button onClick={() => onEdit(shelter)} className="text-xs px-2 py-1 rounded bg-blue-500 text-white hover:bg-blue-600 transition-colors">Edit</button>
+				{shelter.status !== 'open' && <button onClick={() => onStatusChange(shelter.id, 'open')} className="text-xs px-2 py-1 rounded bg-green-500 text-white hover:bg-green-600 transition-colors">Open</button>}
+				{shelter.status !== 'full' && <button onClick={() => onStatusChange(shelter.id, 'full')} className="text-xs px-2 py-1 rounded bg-amber-500 text-white hover:bg-amber-600 transition-colors">Full</button>}
+			</div>
+		</div>
+	);
+};
+
+function LocationMarker({ position, onMapClick, isEditing }) {
+	useMapEvents({
+		click(e) { onMapClick([e.latlng.lat, e.latlng.lng]); },
+	});
+	return position ? <Marker position={position} icon={createSelectedIcon(isEditing)} /> : null;
+}
+
+function MapController({ flyTo, zoom }) {
+	const map = useMap();
+	useEffect(() => {
+		if (flyTo) map.flyTo(flyTo, zoom || 8, { duration: 0.8 });
+	}, [flyTo, zoom, map]);
+	return null;
 }
 
 const AdminShelters = () => {
@@ -45,6 +120,7 @@ const AdminShelters = () => {
 	const [editingShelter, setEditingShelter] = useState(null);
 	const [selectedDistrict, setSelectedDistrict] = useState('');
 	const [mapCenter, setMapCenter] = useState([23.8103, 90.4125]);
+	const [flyTo, setFlyTo] = useState(null);
 	const [markerPos, setMarkerPos] = useState(null);
 	const [formData, setFormData] = useState({
 		name: '',
@@ -82,6 +158,7 @@ const AdminShelters = () => {
 				address: district
 			});
 			setMapCenter([coords.lat, coords.lng]);
+			setFlyTo([coords.lat, coords.lng]);
 			setMarkerPos([coords.lat, coords.lng]);
 		}
 	};
@@ -169,7 +246,21 @@ const AdminShelters = () => {
 	};
 
 	return (
-		<div className="space-y-6">
+		<>
+			<style>{`
+				@keyframes shelterPulse {
+					0%, 100% { transform: scale(1); box-shadow: 0 0 16px var(--pulse-shadow, rgba(16,185,129,0.5)); }
+					50% { transform: scale(1.12); box-shadow: 0 0 28px var(--pulse-shadow, rgba(16,185,129,0.5)); }
+				}
+				.shelter-marker:hover { transform: scale(1.2) !important; z-index: 1000 !important; }
+				.leaflet-popup-content-wrapper { border-radius: 12px !important; box-shadow: 0 8px 32px rgba(0,0,0,0.15) !important; }
+				.leaflet-popup-content { margin: 14px 16px; }
+				.leaflet-popup-close-button { top: 8px !important; right: 8px !important; color: #94a3b8 !important; font-size: 18px !important; }
+				.shelter-marker[data-status="open"] { --pulse-shadow: rgba(16,185,129,0.5); }
+				.custom-scrollbar::-webkit-scrollbar { width: 4px; }
+				.custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+			`}</style>
+			<div className="space-y-6">
 			<div className="flex justify-between items-center">
 				<h2 className="text-2xl font-bold text-white">{t('admin.shelters')}</h2>
 				<button
@@ -271,16 +362,44 @@ const AdminShelters = () => {
 							/>
 						</div>
 
-						<div className="h-[300px] rounded-lg overflow-hidden border border-slate-600">
-							<MapContainer center={mapCenter} zoom={7} style={{ height: '100%', width: '100%' }}>
-								<TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+						<div className="h-[350px] rounded-lg overflow-hidden border border-slate-600 relative">
+							<MapContainer center={mapCenter} zoom={7} style={{ height: '100%', width: '100%' }} zoomControl={false}>
+								<TileLayer
+									url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+									attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+								/>
+								<MapController flyTo={flyTo} zoom={8} />
 								{shelters.map((s) => (
-									<Marker key={s.id} position={[s.latitude, s.longitude]} icon={shelterIcon} />
+									<Marker key={s.id} position={[parseFloat(s.latitude), parseFloat(s.longitude)]} icon={createShelterIcon(s.status)}>
+										<Popup>
+											<PopupContent shelter={s} onEdit={startEdit} onStatusChange={updateStatus} />
+										</Popup>
+									</Marker>
 								))}
-								<LocationMarker position={markerPos} onMapClick={handleMapClick} />
+								<LocationMarker position={markerPos} onMapClick={handleMapClick} isEditing={!!editingShelter} />
 							</MapContainer>
+
+							<div className="absolute top-3 left-3 z-[1000] flex flex-col gap-1.5">
+								{Object.entries(markerColors).map(([status, c]) => (
+									<div key={status} className="flex items-center gap-1.5 px-2 py-1 rounded text-xs bg-white/90 backdrop-blur-sm text-slate-700 shadow-lg border border-slate-200">
+										<span className="w-2.5 h-2.5 rounded-full" style={{background: c.bg, boxShadow: `0 0 6px ${c.shadow}`}} />
+										<span className="capitalize">{status}</span>
+									</div>
+								))}
+							</div>
+
+							<div className="absolute bottom-3 right-3 z-[1000] flex flex-col gap-1 text-xs text-slate-500 bg-white/85 backdrop-blur-sm px-2.5 py-1.5 rounded-lg shadow-lg border border-slate-100 pointer-events-none">
+								<div className="flex items-center gap-1.5">
+									<svg className="w-3.5 h-3.5 text-amber-500" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+									<span>Open</span>
+								</div>
+								<div className="flex items-center gap-1.5">
+									<svg className="w-3.5 h-3.5 text-amber-500" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd"/></svg>
+									<span>Shelter</span>
+								</div>
+							</div>
 						</div>
-						<p className="text-xs text-slate-500">Click on the map to place the shelter, or select a district above.</p>
+						<p className="text-xs text-slate-500">Click on the map to place the shelter. Hover shelter markers for details.</p>
 
 						<button
 							type="submit"
@@ -358,6 +477,7 @@ const AdminShelters = () => {
 				</div>
 			)}
 		</div>
+		</>
 	);
 };
 
