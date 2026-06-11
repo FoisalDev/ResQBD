@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { motion } from 'framer-motion';
 import api from '../../services/api';
@@ -40,6 +40,16 @@ const getWeatherCondition = (wd) => {
 	if (t > 28) return weatherIcons.sunny;
 	if (t < 15) return weatherIcons.cold;
 	return weatherIcons.cloudy;
+};
+
+const ZoomControl = () => {
+	const map = useMap();
+	useEffect(() => {
+		const zc = L.control.zoom({ position: 'topright' });
+		zc.addTo(map);
+		return () => { zc.remove(); };
+	}, [map]);
+	return null;
 };
 
 const createRiskIcon = (category, weatherData) => {
@@ -308,6 +318,7 @@ const RiskOverview = () => {
 								style={{ height: '100%', width: '100%' }}
 								zoomControl={false}
 							>
+								<ZoomControl />
 								<TileLayer
 									attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 									url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

@@ -112,6 +112,16 @@ function MapController({ flyTo, zoom }) {
 	return null;
 }
 
+const ZoomControl = () => {
+	const map = useMap();
+	useEffect(() => {
+		const zc = L.control.zoom({ position: 'topright' });
+		zc.addTo(map);
+		return () => { zc.remove(); };
+	}, [map]);
+	return null;
+};
+
 const AdminShelters = () => {
 	const { t } = useTranslation();
 	const [shelters, setShelters] = useState([]);
@@ -364,6 +374,7 @@ const AdminShelters = () => {
 
 						<div className="h-[350px] rounded-lg overflow-hidden border border-slate-600 relative">
 							<MapContainer center={mapCenter} zoom={7} style={{ height: '100%', width: '100%' }} zoomControl={false}>
+								<ZoomControl />
 								<TileLayer
 									url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
 									attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
