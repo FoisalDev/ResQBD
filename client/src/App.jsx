@@ -32,6 +32,7 @@ import AdminAlerts from './pages/admin/Alerts';
 import AdminWeather from './pages/admin/Weather';
 import AdminAnalytics from './pages/admin/Analytics';
 import AdminNotifications from './pages/admin/Notifications';
+import AdminProfile from './pages/admin/Profile';
 
 const ProtectedRoute = ({ children, roles }) => {
 	const { user, loading } = useAuth();
@@ -131,6 +132,7 @@ function App() {
 				<Route path="weather" element={<AdminWeather />} />
 				<Route path="analytics" element={<AdminAnalytics />} />
 				<Route path="notifications" element={<AdminNotifications />} />
+				<Route path="profile" element={<AdminProfile />} />
 			</Route>
 
 			<Route path="*" element={<Navigate to="/" replace />} />
