@@ -74,3 +74,7 @@ A full-stack, AI-powered disaster response platform for Bangladesh.
 - Relief request and distribution
 - Bengali/English language support
 - Admin dashboard with analytics
+
+## Deployment
+
+Tested and configured for local deployment using Docker environment containers.
