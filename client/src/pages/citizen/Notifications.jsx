@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import { formatDate } from '../../utils/date';
 
 const CitizenNotifications = () => {
 	const { t } = useTranslation();
+	const navigate = useNavigate();
 	const [notifications, setNotifications] = useState([]);
 	const [loading, setLoading] = useState(true);
 
@@ -30,6 +32,11 @@ const CitizenNotifications = () => {
 		} catch (error) {
 			console.error('Error marking notification as read:', error);
 		}
+	};
+
+	const handleNotifClick = async (notification) => {
+		await markAsRead(notification.id);
+		if (notification.link) navigate(notification.link);
 	};
 
 	const markAllAsRead = async () => {
@@ -65,7 +72,7 @@ const CitizenNotifications = () => {
 						{notifications.map((notification) => (
 							<div
 								key={notification.id}
-								onClick={() => markAsRead(notification.id)}
+								onClick={() => handleNotifClick(notification)}
 								className={`p-4 rounded-lg cursor-pointer transition-colors ${
 									notification.is_read ? 'bg-slate-800/50' : 'bg-slate-800'
 								}`}

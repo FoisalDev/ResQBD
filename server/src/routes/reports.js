@@ -51,7 +51,8 @@ router.post(
 					userId: req.user.id,
 					title: 'Report Submitted',
 					message: `Your ${incident_type} report has been submitted successfully.`,
-					type: 'alert'
+					type: 'alert',
+					link: '/citizen/dashboard'
 				}
 			});
 
@@ -63,7 +64,8 @@ router.post(
 						userId: admin.id,
 						title: 'New Disaster Report',
 						message: `${report.user.name} reported a ${incident_type} incident.`,
-						type: 'alert'
+						type: 'alert',
+						link: '/admin/reports'
 					}
 				});
 			}
@@ -111,13 +113,14 @@ router.patch('/:id/verify', authenticate, authorize('admin'), async (req, res) =
 
 		// Notify the citizen
 		await prisma.notification.create({
-			data: {
-				userId: report.user.id,
-				title: 'Report ' + (status === 'verified' ? 'Verified' : 'Rejected'),
-				message: `Your ${report.incidentType} report has been ${status === 'verified' ? 'verified' : 'rejected'}.`,
-				type: 'alert'
-			}
-		});
+				data: {
+					userId: report.user.id,
+					title: 'Report ' + (status === 'verified' ? 'Verified' : 'Rejected'),
+					message: `Your ${report.incidentType} report has been ${status === 'verified' ? 'verified' : 'rejected'}.`,
+					type: 'alert',
+					link: '/citizen/dashboard'
+				}
+			});
 
 		res.json(report);
 	} catch (error) {

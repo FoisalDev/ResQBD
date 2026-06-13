@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import { formatDate } from '../../utils/date';
 
 const VolunteerNotifications = () => {
 	const { t } = useTranslation();
+	const navigate = useNavigate();
 	const [notifications, setNotifications] = useState([]);
 	const [loading, setLoading] = useState(true);
 
@@ -32,6 +34,11 @@ const VolunteerNotifications = () => {
 		}
 	};
 
+	const handleNotifClick = async (notification) => {
+		await markAsRead(notification.id);
+		if (notification.link) navigate(notification.link);
+	};
+
 	return (
 		<div className="max-w-3xl mx-auto">
 			<motion.div
@@ -48,7 +55,7 @@ const VolunteerNotifications = () => {
 						{notifications.map((notification) => (
 							<div
 								key={notification.id}
-								onClick={() => markAsRead(notification.id)}
+								onClick={() => handleNotifClick(notification)}
 								className={`p-4 rounded-lg cursor-pointer ${notification.is_read ? 'bg-slate-800/50' : 'bg-slate-800'}`}
 							>
 								<h4 className="text-white font-medium">{notification.title}</h4>

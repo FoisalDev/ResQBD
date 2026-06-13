@@ -45,7 +45,8 @@ router.post(
 					userId: req.user.id,
 					title: 'SOS Submitted',
 					message: `Your SOS request has been submitted. Type: ${emergency_type}`,
-					type: 'sos'
+					type: 'sos',
+					link: '/citizen/sos/history'
 				}
 			});
 
@@ -136,7 +137,8 @@ router.patch(
 					userId: sos.userId,
 					title: 'SOS Status Updated',
 					message: `Your SOS has been ${status.replace('_', ' ')}`,
-					type: 'sos'
+					type: 'sos',
+					link: '/citizen/sos/history'
 				}
 			});
 

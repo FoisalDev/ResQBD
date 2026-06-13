@@ -91,13 +91,14 @@ router.patch('/:id/verify', authenticate, authorize('admin'), async (req, res) =
 		});
 
 		await prisma.notification.create({
-			data: {
-				userId: volunteer.userId,
-				title: 'Volunteer Verified',
-				message: 'Your volunteer account has been verified',
-				type: 'system'
-			}
-		});
+				data: {
+					userId: volunteer.userId,
+					title: 'Volunteer Verified',
+					message: 'Your volunteer account has been verified',
+					type: 'system',
+					link: '/volunteer/dashboard'
+				}
+			});
 
 		res.json(volunteer);
 	} catch (error) {

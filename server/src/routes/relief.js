@@ -71,13 +71,14 @@ router.patch('/requests/:id/approve', authenticate, authorize('admin'), async (r
 		});
 
 		await prisma.notification.create({
-			data: {
-				userId: relief.userId,
-				title: 'Relief Request ' + (status === 'approved' ? 'Approved' : 'Rejected'),
-				message: `Your relief request has been ${status}`,
-				type: 'relief'
-			}
-		});
+				data: {
+					userId: relief.userId,
+					title: 'Relief Request ' + (status === 'approved' ? 'Approved' : 'Rejected'),
+					message: `Your relief request has been ${status}`,
+					type: 'relief',
+					link: '/citizen/dashboard'
+				}
+			});
 
 		io.to(`user:${relief.userId}`).emit('relief:updated', relief);
 
@@ -118,7 +119,8 @@ router.post(
 							userId: volunteer.userId,
 							title: 'New Relief Delivery',
 							message: 'You have been assigned a relief delivery task',
-							type: 'task'
+							type: 'task',
+							link: '/volunteer/deliveries'
 						}
 					});
 					io.to(`user:${volunteer.userId}`).emit('task:assigned', distribution);

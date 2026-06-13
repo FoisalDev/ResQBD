@@ -48,6 +48,12 @@ const Navbar = ({ onMenuClick, showMenu }) => {
 		}
 	};
 
+	const handleNotifClick = async (n) => {
+		await markAsRead(n.id);
+		setNotifOpen(false);
+		if (n.link) navigate(n.link);
+	};
+
 	const markAllAsRead = async () => {
 		try {
 			await api.patch('/notifications/read-all');
@@ -161,7 +167,7 @@ const Navbar = ({ onMenuClick, showMenu }) => {
 														notifications.map((n) => (
 															<div
 																key={n.id}
-																onClick={() => !n.isRead && markAsRead(n.id)}
+																onClick={() => handleNotifClick(n)}
 																className={`p-3 border-b border-slate-700 cursor-pointer ${
 																	n.isRead ? 'opacity-60' : 'hover:bg-slate-700'
 																}`}

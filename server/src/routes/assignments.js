@@ -38,7 +38,8 @@ router.post(
 					userId: assignment.volunteer.userId,
 					title: 'New Task Assigned',
 					message: `You have been assigned a ${task_type} task`,
-					type: 'task'
+					type: 'task',
+					link: '/volunteer/tasks'
 				}
 			});
 
