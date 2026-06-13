@@ -237,10 +237,15 @@ const CitizenDashboard = () => {
 								className="flex items-center justify-between p-3 bg-slate-800/50 rounded-lg"
 							>
 								<div>
-									<p className="text-white font-medium">{sos.emergency_type}</p>
+									<p className="text-white font-medium capitalize">{sos.emergency_type}</p>
 									<p className="text-sm text-slate-400">
 										{formatDate(sos.created_at)}
 									</p>
+									{sos.description && (
+										<p className="text-sm text-slate-300 mt-1 truncate max-w-[200px]">
+											{sos.description}
+										</p>
+									)}
 								</div>
 								<span
 									className={`px-3 py-1 rounded-full text-xs font-medium ${
