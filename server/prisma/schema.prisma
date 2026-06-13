@@ -170,7 +170,7 @@ model SOSRequest {
   updatedAt     DateTime   @updatedAt @map("updated_at")
 
   user       User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
-  assignment VolunteerAssignment?
+	assignments VolunteerAssignment[]
 
   @@index([userId])
   @@index([status])

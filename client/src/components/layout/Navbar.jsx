@@ -61,10 +61,14 @@ const Navbar = ({ onMenuClick, showMenu }) => {
 	};
 
 	const handleNotifClick = async (n) => {
-		await markAsRead(n.id);
-		setNotifOpen(false);
-		const link = getNotifLink(n);
-		if (link) navigate(link);
+		try {
+			await markAsRead(n.id);
+			setNotifOpen(false);
+			const link = getNotifLink(n);
+			if (link) navigate(link);
+		} catch (err) {
+			console.error('Notification click error:', err);
+		}
 	};
 
 	const markAllAsRead = async () => {

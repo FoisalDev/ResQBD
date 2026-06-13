@@ -10,6 +10,14 @@ const STATUS_THEMES = {
     pending: 'bg-yellow-500/20 text-yellow-500'
 };
 
+const getField = (obj, ...keys) => {
+    for (const k of keys) {
+        const v = obj?.[k];
+        if (v !== undefined && v !== null) return v;
+    }
+    return '';
+};
+
 const VolunteerTasks = () => {
     const { t } = useTranslation();
     const [tasks, setTasks] = useState([]);
@@ -57,12 +65,12 @@ const VolunteerTasks = () => {
                         {tasks.map((task) => (
                             <div key={task.id} className="p-4 bg-slate-800/60 border border-slate-700/30 rounded-lg">
                                 <div className="flex items-center justify-between mb-2">
-                                    <h4 className="text-white font-medium capitalize">{task.task_type.replace('_', ' ')}</h4>
+                                    <h4 className="text-white font-medium capitalize">{getField(task, 'taskType', 'task_type').replace(/_/g, ' ')}</h4>
                                     <span className={`px-3 py-1 rounded-full text-xs font-medium ${STATUS_THEMES[task.status] || STATUS_THEMES.pending}`}>
-                                        {task.status.replace('_', ' ')}
+                                        {getField(task, 'status').replace(/_/g, ' ')}
                                     </span>
                                 </div>
-                                <p className="text-slate-400 text-sm mb-3">{task.description}</p>
+                                <p className="text-slate-400 text-sm mb-3">{getField(task, 'description')}</p>
                                 
                                 <div className="flex gap-2">
                                     {task.status === 'pending' && (

@@ -111,9 +111,9 @@ const VolunteerDashboard = () => {
 								className="flex items-center justify-between p-3 bg-slate-800/50 rounded-lg"
 							>
 								<div>
-									<p className="text-white font-medium">{task.task_type}</p>
+									<p className="text-white font-medium">{task.taskType || task.task_type || ''}</p>
 									<p className="text-sm text-slate-400">
-										{formatDate(task.created_at)}
+										{formatDate(task.createdAt || task.created_at)}
 									</p>
 								</div>
 								<span

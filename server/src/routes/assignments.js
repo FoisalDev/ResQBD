@@ -19,6 +19,22 @@ router.post(
 
 			const { volunteer_id, sos_request_id, task_type, description } = req.body;
 
+			const volunteer = await prisma.volunteer.findUnique({
+				where: { id: volunteer_id }
+			});
+			if (!volunteer) {
+				return res.status(404).json({ message: 'Volunteer not found' });
+			}
+
+			if (sos_request_id) {
+				const sos = await prisma.sOSRequest.findUnique({
+					where: { id: sos_request_id }
+				});
+				if (!sos) {
+					return res.status(404).json({ message: 'SOS request not found' });
+				}
+			}
+
 			const assignment = await prisma.volunteerAssignment.create({
 				data: {
 					volunteerId: volunteer_id,
@@ -48,6 +64,12 @@ router.post(
 			res.status(201).json(assignment);
 		} catch (error) {
 			console.error('Create assignment error:', error);
+			if (error.code === 'P2002') {
+				return res.status(409).json({ message: 'This SOS already has a volunteer assigned (unique constraint). Run prisma db push to remove the old constraint.' });
+			}
+			if (error.code === 'P2003') {
+				return res.status(400).json({ message: 'Invalid volunteer or SOS reference' });
+			}
 			res.status(500).json({ message: 'Failed to create assignment' });
 		}
 	}
@@ -129,6 +151,9 @@ router.get('/suggest/:sosId', authenticate, authorize('admin'), async (req, res)
       FROM volunteers v
       JOIN users u ON v.user_id = u.id
       WHERE v.availability = 'available' AND v.latitude IS NOT NULL AND v.verified = true
+        AND v.id NOT IN (
+          SELECT va.volunteer_id FROM volunteer_assignments va WHERE va.sos_request_id = ${sos.id}
+        )
       ORDER BY distance
       LIMIT 5
     `;

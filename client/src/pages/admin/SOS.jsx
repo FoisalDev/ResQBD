@@ -25,6 +25,7 @@ const AdminSOS = () => {
 	const [volunteerSearch, setVolunteerSearch] = useState('');
 	const [selectedVolunteer, setSelectedVolunteer] = useState({});
 	const [assignedCount, setAssignedCount] = useState({});
+	const [assignmentsData, setAssignmentsData] = useState({});
 
 	const fetchSOS = useCallback(async () => {
 		try {
@@ -75,6 +76,7 @@ const AdminSOS = () => {
 			const res = await api.get('/assignments');
 			const sosAssignments = res.data.filter((a) => a.sosRequestId === sosId);
 			setAssignedCount((prev) => ({ ...prev, [sosId]: sosAssignments.length }));
+			setAssignmentsData((prev) => ({ ...prev, [sosId]: sosAssignments }));
 		} catch (err) {
 			console.error('Error fetching assignments:', err);
 		}
@@ -95,7 +97,6 @@ const AdminSOS = () => {
 	};
 
 	const fetchSuggestions = async (sosId) => {
-		if (suggestions[sosId]) return;
 		try {
 			const response = await api.get(`/assignments/suggest/${sosId}`);
 			setSuggestions((prev) => ({ ...prev, [sosId]: response.data }));
@@ -117,6 +118,8 @@ const AdminSOS = () => {
 			const current = assignedCount[sosId] || 0;
 			setAssignedCount((prev) => ({ ...prev, [sosId]: current + 1 }));
 			setSelectedVolunteer((prev) => ({ ...prev, [sosId]: undefined }));
+			setVolunteerSearch('');
+			setSuggestions((prev) => ({ ...prev, [sosId]: undefined }));
 			if (current === 0) {
 				const sos = sosList.find((s) => s.id === sosId);
 				if (sos && sos.status === 'pending') {
@@ -195,7 +198,7 @@ const AdminSOS = () => {
 											className="border-b border-slate-700/50 cursor-pointer hover:bg-slate-700/30"
 											onClick={() => toggleExpand(sos.id)}
 										>
-											<td className="py-3 text-white capitalize">{sos.emergency_type}</td>
+											<td className="py-3 text-white capitalize">{sos.emergencyType || sos.emergency_type || ''}</td>
 											<td className="py-3 text-white">{sos.severity}/5</td>
 											<td className="py-3 text-slate-300">{sos.user?.name || sos.userId}</td>
 											<td className="py-3">
@@ -238,9 +241,18 @@ const AdminSOS = () => {
 																<strong>Contact:</strong> {sos.user?.phone || 'N/A'}
 															</p>
 															{assignedCount[sos.id] > 0 && (
-																<p className="text-slate-400 text-sm mt-2">
-																	<strong>Assigned volunteers:</strong> {assignedCount[sos.id]}
-																</p>
+																<div className="text-slate-400 text-sm mt-2">
+																	<strong className="text-white">Assigned volunteers:</strong>
+																	<ul className="mt-1 space-y-1">
+																		{(assignmentsData[sos.id] || []).map((a) => (
+																			<li key={a.id} className="flex items-center gap-2 text-xs">
+																				<span className="w-1.5 h-1.5 bg-green-400 rounded-full" />
+																				{a.volunteer?.user?.name || `Volunteer #${a.volunteerId}`}
+																				<span className="text-slate-500">- {a.status}</span>
+																			</li>
+																		))}
+																	</ul>
+																</div>
 															)}
 														</div>
 														<div>

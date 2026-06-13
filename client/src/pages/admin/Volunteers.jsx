@@ -11,7 +11,7 @@ const AdminVolunteers = () => {
 	useEffect(() => {
 		const fetchVolunteers = async () => {
 			try {
-				const response = await api.get('/volunteers');
+				const response = await api.get('/volunteers?all=true');
 				setVolunteers(response.data);
 			} catch (error) {
 				console.error('Error fetching volunteers:', error);

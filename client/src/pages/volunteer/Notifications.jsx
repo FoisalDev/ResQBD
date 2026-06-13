@@ -48,9 +48,13 @@ const VolunteerNotifications = () => {
 	};
 
 	const handleNotifClick = async (notification) => {
-		await markAsRead(notification.id);
-		const link = getNotifLink(notification);
-		if (link) navigate(link);
+		try {
+			await markAsRead(notification.id);
+			const link = getNotifLink(notification);
+			if (link) navigate(link);
+		} catch (err) {
+			console.error('Notification click error:', err);
+		}
 	};
 
 	return (
