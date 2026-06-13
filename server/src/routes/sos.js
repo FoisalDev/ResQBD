@@ -40,7 +40,7 @@ router.post(
 				}
 			});
 
-			await prisma.notification.create({
+			prisma.notification.create({
 				data: {
 					userId: req.user.id,
 					title: 'SOS Submitted',
@@ -48,7 +48,7 @@ router.post(
 					type: 'sos',
 					link: '/citizen/sos/history'
 				}
-			});
+			}).catch((err) => console.error('Failed to create notification:', err));
 
 			io.to('role:admin').emit('sos:new', sos);
 			io.to('role:volunteer').emit('sos:new', sos);
@@ -132,7 +132,7 @@ router.patch(
 				}
 			});
 
-			await prisma.notification.create({
+			prisma.notification.create({
 				data: {
 					userId: sos.userId,
 					title: 'SOS Status Updated',
@@ -140,7 +140,7 @@ router.patch(
 					type: 'sos',
 					link: '/citizen/sos/history'
 				}
-			});
+			}).catch((err) => console.error('Failed to create notification:', err));
 
 			io.to(`user:${sos.userId}`).emit('sos:updated', sos);
 			io.to('role:admin').emit('sos:updated', sos);

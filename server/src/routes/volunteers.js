@@ -7,7 +7,10 @@ const router = express.Router();
 
 router.get('/', authenticate, authorize('admin'), async (req, res) => {
 	try {
+		const where = req.query.all === 'true' ? {} : { availability: 'available', verified: true };
+
 		const volunteers = await prisma.volunteer.findMany({
+			where,
 			include: {
 				user: {
 					select: { id: true, name: true, email: true, phone: true }
@@ -90,7 +93,7 @@ router.patch('/:id/verify', authenticate, authorize('admin'), async (req, res) =
 			}
 		});
 
-		await prisma.notification.create({
+		prisma.notification.create({
 				data: {
 					userId: volunteer.userId,
 					title: 'Volunteer Verified',
@@ -98,7 +101,7 @@ router.patch('/:id/verify', authenticate, authorize('admin'), async (req, res) =
 					type: 'system',
 					link: '/volunteer/dashboard'
 				}
-			});
+			}).catch((err) => console.error('Failed to create notification:', err));
 
 		res.json(volunteer);
 	} catch (error) {

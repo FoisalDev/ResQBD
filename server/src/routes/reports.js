@@ -46,7 +46,7 @@ router.post(
 			});
 
 			// Notify the citizen
-			await prisma.notification.create({
+			prisma.notification.create({
 				data: {
 					userId: req.user.id,
 					title: 'Report Submitted',
@@ -54,12 +54,12 @@ router.post(
 					type: 'alert',
 					link: '/citizen/dashboard'
 				}
-			});
+			}).catch((err) => console.error('Failed to create notification:', err));
 
 			// Notify all admins
 			const admins = await prisma.user.findMany({ where: { role: 'admin' }, select: { id: true } });
 			for (const admin of admins) {
-				await prisma.notification.create({
+				prisma.notification.create({
 					data: {
 						userId: admin.id,
 						title: 'New Disaster Report',
@@ -67,7 +67,7 @@ router.post(
 						type: 'alert',
 						link: '/admin/reports'
 					}
-				});
+				}).catch((err) => console.error('Failed to create notification:', err));
 			}
 
 			io.to('role:admin').emit('report:new', report);
@@ -112,7 +112,7 @@ router.patch('/:id/verify', authenticate, authorize('admin'), async (req, res) =
 		});
 
 		// Notify the citizen
-		await prisma.notification.create({
+		prisma.notification.create({
 				data: {
 					userId: report.user.id,
 					title: 'Report ' + (status === 'verified' ? 'Verified' : 'Rejected'),
@@ -120,7 +120,7 @@ router.patch('/:id/verify', authenticate, authorize('admin'), async (req, res) =
 					type: 'alert',
 					link: '/citizen/dashboard'
 				}
-			});
+			}).catch((err) => console.error('Failed to create notification:', err));
 
 		res.json(report);
 	} catch (error) {

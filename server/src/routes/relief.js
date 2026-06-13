@@ -70,7 +70,7 @@ router.patch('/requests/:id/approve', authenticate, authorize('admin'), async (r
 			include: { user: { select: { id: true } } }
 		});
 
-		await prisma.notification.create({
+		prisma.notification.create({
 				data: {
 					userId: relief.userId,
 					title: 'Relief Request ' + (status === 'approved' ? 'Approved' : 'Rejected'),
@@ -78,7 +78,7 @@ router.patch('/requests/:id/approve', authenticate, authorize('admin'), async (r
 					type: 'relief',
 					link: '/citizen/dashboard'
 				}
-			});
+			}).catch((err) => console.error('Failed to create notification:', err));
 
 		io.to(`user:${relief.userId}`).emit('relief:updated', relief);
 
@@ -114,7 +114,7 @@ router.post(
 			if (volunteer_id) {
 				const volunteer = await prisma.volunteer.findUnique({ where: { id: volunteer_id } });
 				if (volunteer) {
-					await prisma.notification.create({
+					prisma.notification.create({
 						data: {
 							userId: volunteer.userId,
 							title: 'New Relief Delivery',
@@ -122,7 +122,7 @@ router.post(
 							type: 'task',
 							link: '/volunteer/deliveries'
 						}
-					});
+					}).catch((err) => console.error('Failed to create notification:', err));
 					io.to(`user:${volunteer.userId}`).emit('task:assigned', distribution);
 				}
 			}

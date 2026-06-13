@@ -9,7 +9,7 @@ router.post(
 	'/',
 	authenticate,
 	authorize('admin'),
-	[body('volunteer_id').isInt(), body('task_type').notEmpty()],
+	[body('volunteer_id').isInt(), body('sos_request_id').optional().isInt(), body('task_type').notEmpty()],
 	async (req, res) => {
 		try {
 			const errors = validationResult(req);
@@ -33,7 +33,7 @@ router.post(
 				}
 			});
 
-			await prisma.notification.create({
+			prisma.notification.create({
 				data: {
 					userId: assignment.volunteer.userId,
 					title: 'New Task Assigned',
@@ -41,12 +41,13 @@ router.post(
 					type: 'task',
 					link: '/volunteer/tasks'
 				}
-			});
+			}).catch((err) => console.error('Failed to create notification:', err));
 
 			io.to(`user:${assignment.volunteer.userId}`).emit('task:assigned', assignment);
 
 			res.status(201).json(assignment);
 		} catch (error) {
+			console.error('Create assignment error:', error);
 			res.status(500).json({ message: 'Failed to create assignment' });
 		}
 	}

@@ -219,7 +219,7 @@ model Shelter {
 model VolunteerAssignment {
   id          Int        @id @default(autoincrement())
   volunteerId Int        @map("volunteer_id")
-  sosRequestId Int?      @unique @map("sos_request_id")
+  sosRequestId Int?      @map("sos_request_id")
   taskType    String     @map("task_type") @db.VarChar(50)
   description String?    @db.Text
   status      TaskStatus @default(pending)

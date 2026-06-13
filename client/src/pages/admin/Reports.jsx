@@ -8,6 +8,7 @@ const AdminReports = () => {
 	const { t } = useTranslation();
 	const [reports, setReports] = useState([]);
 	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState('');
 
 	useEffect(() => {
 		const fetchReports = async () => {
@@ -24,13 +25,16 @@ const AdminReports = () => {
 	}, []);
 
 	const verifyReport = async (id, status) => {
+		setError('');
 		try {
 			await api.patch(`/reports/${id}/verify`, { status });
 			setReports(
 				reports.map((r) => (r.id === id ? { ...r, status, verified: status === 'verified' } : r))
 			);
-		} catch (error) {
-			console.error('Error verifying report:', error);
+		} catch (err) {
+			const msg = err.response?.data?.message || 'Failed to verify report';
+			setError(msg);
+			console.error('Error verifying report:', err);
 		}
 	};
 
@@ -42,6 +46,11 @@ const AdminReports = () => {
 				className="glass-card p-6 rounded-xl"
 			>
 				<h2 className="text-xl font-semibold text-white mb-4">{t('admin.reports')}</h2>
+				{error && (
+					<div className="mb-4 p-3 bg-danger/20 border border-danger/50 rounded-lg text-danger text-sm">
+						{error}
+					</div>
+				)}
 				{loading ? (
 					<p className="text-slate-400">{t('common.loading')}</p>
 				) : (
