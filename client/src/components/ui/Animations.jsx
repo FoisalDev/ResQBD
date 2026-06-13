@@ -1,13 +1,24 @@
 import { motion } from 'framer-motion';
 
+const DEFAULT_DURATION = 0.4;
+const FAST_DURATION = 0.2;
+const SCALE_DURATION = 0.3;
+
+const directions = {
+	left: { x: -50 },
+	right: { x: 50 },
+	up: { y: -50 },
+	down: { y: 50 },
+};
+
 export const AnimatedCard = ({ children, className = '', delay = 0 }) => {
 	return (
 		<motion.div
 			initial={{ opacity: 0, y: 20 }}
 			animate={{ opacity: 1, y: 0 }}
-			transition={{ delay, duration: 0.4 }}
-			whileHover={{ y: -5, transition: { duration: 0.2 } }}
-			className={`glass-card rounded-xl ${className}`}
+			transition={{ delay, duration: DEFAULT_DURATION }}
+			whileHover={{ y: -5, transition: { duration: FAST_DURATION } }}
+			className={`glass-card rounded-xl ${className}`.trim()}
 		>
 			{children}
 		</motion.div>
@@ -19,7 +30,7 @@ export const FadeIn = ({ children, delay = 0, className = '' }) => {
 		<motion.div
 			initial={{ opacity: 0, y: 20 }}
 			animate={{ opacity: 1, y: 0 }}
-			transition={{ delay, duration: 0.4 }}
+			transition={{ delay, duration: DEFAULT_DURATION }}
 			className={className}
 		>
 			{children}
@@ -28,18 +39,13 @@ export const FadeIn = ({ children, delay = 0, className = '' }) => {
 };
 
 export const SlideIn = ({ children, direction = 'left', delay = 0, className = '' }) => {
-	const directions = {
-		left: { x: -50 },
-		right: { x: 50 },
-		up: { y: -50 },
-		down: { y: 50 }
-	};
+	const selectedDirection = directions[direction] || directions.left;
 
 	return (
 		<motion.div
-			initial={{ opacity: 0, ...directions[direction] }}
+			initial={{ opacity: 0, ...selectedDirection }}
 			animate={{ opacity: 1, x: 0, y: 0 }}
-			transition={{ delay, duration: 0.4 }}
+			transition={{ delay, duration: DEFAULT_DURATION }}
 			className={className}
 		>
 			{children}
@@ -52,7 +58,7 @@ export const ScaleIn = ({ children, delay = 0, className = '' }) => {
 		<motion.div
 			initial={{ opacity: 0, scale: 0.9 }}
 			animate={{ opacity: 1, scale: 1 }}
-			transition={{ delay, duration: 0.3 }}
+			transition={{ delay, duration: SCALE_DURATION }}
 			className={className}
 		>
 			{children}
@@ -70,9 +76,9 @@ export const StaggerContainer = ({ children, className = '', staggerDelay = 0.1 
 				visible: {
 					opacity: 1,
 					transition: {
-						staggerChildren: staggerDelay
-					}
-				}
+						staggerChildren: staggerDelay,
+					},
+				},
 			}}
 			className={className}
 		>
@@ -86,7 +92,11 @@ export const StaggerItem = ({ children, className = '' }) => {
 		<motion.div
 			variants={{
 				hidden: { opacity: 0, y: 20 },
-				visible: { opacity: 1, y: 0, transition: { duration: 0.4 } }
+				visible: {
+					opacity: 1,
+					y: 0,
+					transition: { duration: DEFAULT_DURATION },
+				},
 			}}
 			className={className}
 		>
@@ -116,5 +126,5 @@ export default {
 	ScaleIn,
 	StaggerContainer,
 	StaggerItem,
-	PulseButton
+	PulseButton,
 };
