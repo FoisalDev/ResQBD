@@ -20,13 +20,16 @@ const AdminNotifications = () => {
 				setLoading(false);
 			}
 		};
+
 		fetchNotifications();
 	}, []);
 
 	const markAsRead = async (id) => {
 		try {
 			await api.patch(`/notifications/${id}/read`);
-			setNotifications(notifications.map((n) => (n.id === id ? { ...n, is_read: true } : n)));
+			setNotifications((prevNotifications) =>
+				prevNotifications.map((n) => (n.id === id ? { ...n, is_read: true } : n))
+			);
 		} catch (error) {
 			console.error('Error marking notification as read:', error);
 		}
@@ -35,7 +38,9 @@ const AdminNotifications = () => {
 	const markAllAsRead = async () => {
 		try {
 			await api.patch('/notifications/read-all');
-			setNotifications(notifications.map((n) => ({ ...n, is_read: true })));
+			setNotifications((prevNotifications) =>
+				prevNotifications.map((n) => ({ ...n, is_read: true }))
+			);
 		} catch (error) {
 			console.error('Error marking all as read:', error);
 		}
@@ -51,6 +56,7 @@ const AdminNotifications = () => {
 				<div className="flex items-center justify-between mb-6">
 					<h2 className="text-2xl font-bold text-white">{t('notifications.title')}</h2>
 					<button
+						type="button"
 						onClick={markAllAsRead}
 						className="text-sm text-primary-500 hover:text-primary-400"
 					>
@@ -86,7 +92,9 @@ const AdminNotifications = () => {
 						))}
 					</div>
 				) : (
-					<p className="text-slate-400 text-center py-8">{t('notifications.noNotifications')}</p>
+					<p className="text-slate-400 text-center py-8">
+						{t('notifications.noNotifications')}
+					</p>
 				)}
 			</motion.div>
 		</div>

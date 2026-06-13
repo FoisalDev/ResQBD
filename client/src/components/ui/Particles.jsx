@@ -1,11 +1,24 @@
 import { useEffect, useRef } from 'react';
 
+const PARTICLE_AREA = 12000;
+const MOUSE_DISTANCE = 150;
+const PARTICLE_DISTANCE = 80;
+const MAX_NEARBY_PARTICLES = 5;
+
+const PARTICLE_COLORS = ['59, 130, 246', '16, 185, 129'];
+
 const Particles = () => {
 	const canvasRef = useRef(null);
 
 	useEffect(() => {
 		const canvas = canvasRef.current;
+
+		if (!canvas) return;
+
 		const ctx = canvas.getContext('2d');
+
+		if (!ctx) return;
+
 		let animationFrame;
 		let particles = [];
 		let mouse = { x: null, y: null };
@@ -17,7 +30,8 @@ const Particles = () => {
 
 		const createParticles = () => {
 			particles = [];
-			const particleCount = Math.floor((canvas.width * canvas.height) / 12000);
+			const particleCount = Math.floor((canvas.width * canvas.height) / PARTICLE_AREA);
+
 			for (let i = 0; i < particleCount; i++) {
 				particles.push({
 					x: Math.random() * canvas.width,
@@ -26,8 +40,8 @@ const Particles = () => {
 					speedX: (Math.random() - 0.5) * 0.8,
 					speedY: (Math.random() - 0.5) * 0.8,
 					opacity: Math.random() * 0.4 + 0.1,
-					color: Math.random() > 0.5 ? '59, 130, 246' : '16, 185, 129',
-					phase: Math.random() * Math.PI * 2
+					color: PARTICLE_COLORS[Math.floor(Math.random() * PARTICLE_COLORS.length)],
+					phase: Math.random() * Math.PI * 2,
 				});
 			}
 		};
@@ -51,30 +65,36 @@ const Particles = () => {
 				ctx.fillStyle = `rgba(${particle.color}, ${particle.opacity * glow})`;
 				ctx.fill();
 
-				if (mouse.x !== null) {
-					const dx = mouse.x - particle.x;
-					const dy = mouse.y - particle.y;
-					const distance = Math.sqrt(dx * dx + dy * dy);
-					if (distance < 150) {
+				if (mouse.x !== null && mouse.y !== null) {
+					const distance = Math.hypot(mouse.x - particle.x, mouse.y - particle.y);
+
+					if (distance < MOUSE_DISTANCE) {
 						ctx.beginPath();
 						ctx.moveTo(particle.x, particle.y);
 						ctx.lineTo(mouse.x, mouse.y);
-						ctx.strokeStyle = `rgba(${particle.color}, ${0.15 * (1 - distance / 150)})`;
+						ctx.strokeStyle = `rgba(${particle.color}, ${
+							0.15 * (1 - distance / MOUSE_DISTANCE)
+						})`;
 						ctx.lineWidth = 0.5;
 						ctx.stroke();
 					}
 				}
 
-				for (let j = index + 1; j < Math.min(index + 5, particles.length); j++) {
+				for (
+					let j = index + 1;
+					j < Math.min(index + MAX_NEARBY_PARTICLES, particles.length);
+					j++
+				) {
 					const other = particles[j];
-					const dx = particle.x - other.x;
-					const dy = particle.y - other.y;
-					const distance = Math.sqrt(dx * dx + dy * dy);
-					if (distance < 80) {
+					const distance = Math.hypot(particle.x - other.x, particle.y - other.y);
+
+					if (distance < PARTICLE_DISTANCE) {
 						ctx.beginPath();
 						ctx.moveTo(particle.x, particle.y);
 						ctx.lineTo(other.x, other.y);
-						ctx.strokeStyle = `rgba(${particle.color}, ${0.08 * (1 - distance / 80)})`;
+						ctx.strokeStyle = `rgba(${particle.color}, ${
+							0.08 * (1 - distance / PARTICLE_DISTANCE)
+						})`;
 						ctx.lineWidth = 0.3;
 						ctx.stroke();
 					}
@@ -85,6 +105,11 @@ const Particles = () => {
 		const animate = (time) => {
 			drawParticles(time);
 			animationFrame = requestAnimationFrame(animate);
+		};
+
+		const handleResize = () => {
+			resizeCanvas();
+			createParticles();
 		};
 
 		const handleMouseMove = (e) => {
@@ -99,24 +124,27 @@ const Particles = () => {
 
 		resizeCanvas();
 		createParticles();
-		animate(0);
+		animationFrame = requestAnimationFrame(animate);
 
-		window.addEventListener('resize', () => {
-			resizeCanvas();
-			createParticles();
-		});
+		window.addEventListener('resize', handleResize);
 		window.addEventListener('mousemove', handleMouseMove);
 		window.addEventListener('mouseleave', handleMouseLeave);
 
 		return () => {
 			cancelAnimationFrame(animationFrame);
-			window.removeEventListener('resize', resizeCanvas);
+			window.removeEventListener('resize', handleResize);
 			window.removeEventListener('mousemove', handleMouseMove);
 			window.removeEventListener('mouseleave', handleMouseLeave);
 		};
 	}, []);
 
-	return <canvas ref={canvasRef} className="fixed inset-0 z-0 pointer-events-none" />;
+	return (
+		<canvas
+			ref={canvasRef}
+			className="fixed inset-0 z-0 pointer-events-none"
+			aria-hidden="true"
+		/>
+	);
 };
 
 export default Particles;

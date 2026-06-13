@@ -1,14 +1,19 @@
+const BANGLA_DIGITS = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+
 export const formatDate = (date, options = {}) => {
-  if (!date) return '';
-  const d = new Date(date);
-  if (isNaN(d.getTime())) return '';
-  const { withTime } = options;
-  return withTime
-    ? d.toLocaleString()
-    : d.toLocaleDateString();
+	if (!date) return '';
+
+	const parsedDate = new Date(date);
+
+	if (Number.isNaN(parsedDate.getTime())) return '';
+
+	const { withTime = false } = options;
+
+	return withTime ? parsedDate.toLocaleString() : parsedDate.toLocaleDateString();
 };
+
 export const toBanglaNumerals = (num) => {
-  if (num === null || num === undefined) return '';
-  const banglaDigits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
-  return num.toString().replace(/\d/g, (digit) => banglaDigits[digit]);
+	if (num === null || num === undefined) return '';
+
+	return String(num).replace(/\d/g, (digit) => BANGLA_DIGITS[digit]);
 };
