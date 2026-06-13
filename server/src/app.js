@@ -58,7 +58,15 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static('uploads'));
-
+// Request logger middleware to track API request response times
+app.use((req, res, next) => {
+    const start = Date.now();
+    res.on('finish', () => {
+        const duration = Date.now() - start;
+        console.log(`[HTTP] ${req.method} ${req.originalUrl} - ${res.statusCode} (${duration}ms)`);
+    });
+    next();
+});
 const authLimiter = rateLimit({
 	windowMs: 15 * 60 * 1000,
 	max: 20,
@@ -94,6 +102,10 @@ const PORT = process.env.PORT || 5000;
 
 httpServer.listen(PORT, () => {
 	console.log(`Server running on port ${PORT}`);
+	console.log("=========================================");
+console.log("   ResQBD Backend Server Started         ");
+console.log("   Ready for Disaster Response Management ");
+console.log("=========================================");
 });
 
 process.on('SIGTERM', async () => {
