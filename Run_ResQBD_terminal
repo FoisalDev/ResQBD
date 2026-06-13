@@ -28,16 +28,12 @@ TERMINAL 3 — Client (React/Vite)
 LOGIN CREDENTIALS
 ────────────────────────────────
   Admin:     admin@gmail.com / admin1234
-             Name: System data
+             Name: System 
              
 
              
 
-  Volunteer: volunteer@gmail.com / @Resq1234
-             Name: Ahmed Hasan
-             Phone: +8801234567891
-             Skills: First Aid, Water Rescue, First Response
-
+  
   Citizen:   citizen@gmail.com / @Resq1234
              Name: Rahim Ahmed
              Phone: +8801234567892
