@@ -2,11 +2,13 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../hooks';
 import api from '../../services/api';
 import { formatDate } from '../../utils/date';
 
 const VolunteerNotifications = () => {
 	const { t } = useTranslation();
+	const { user } = useAuth();
 	const navigate = useNavigate();
 	const [notifications, setNotifications] = useState([]);
 	const [loading, setLoading] = useState(true);
@@ -34,9 +36,21 @@ const VolunteerNotifications = () => {
 		}
 	};
 
+	const getNotifLink = (n) => {
+		if (n.link) return n.link;
+		switch (n.type) {
+			case 'task': return '/volunteer/tasks';
+			case 'relief': return '/volunteer/deliveries';
+			case 'alert': return '/volunteer/dashboard';
+			case 'system': return '/volunteer/dashboard';
+			default: return null;
+		}
+	};
+
 	const handleNotifClick = async (notification) => {
 		await markAsRead(notification.id);
-		if (notification.link) navigate(notification.link);
+		const link = getNotifLink(notification);
+		if (link) navigate(link);
 	};
 
 	return (

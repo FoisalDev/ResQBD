@@ -2,11 +2,13 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../hooks';
 import api from '../../services/api';
 import { formatDate } from '../../utils/date';
 
 const CitizenNotifications = () => {
 	const { t } = useTranslation();
+	const { user } = useAuth();
 	const navigate = useNavigate();
 	const [notifications, setNotifications] = useState([]);
 	const [loading, setLoading] = useState(true);
@@ -34,9 +36,20 @@ const CitizenNotifications = () => {
 		}
 	};
 
+	const getNotifLink = (n) => {
+		if (n.link) return n.link;
+		switch (n.type) {
+			case 'sos': return '/citizen/sos/history';
+			case 'alert': return '/citizen/dashboard';
+			case 'relief': return '/citizen/dashboard';
+			default: return null;
+		}
+	};
+
 	const handleNotifClick = async (notification) => {
 		await markAsRead(notification.id);
-		if (notification.link) navigate(notification.link);
+		const link = getNotifLink(notification);
+		if (link) navigate(link);
 	};
 
 	const markAllAsRead = async () => {

@@ -48,10 +48,23 @@ const Navbar = ({ onMenuClick, showMenu }) => {
 		}
 	};
 
+	const getNotifLink = (n) => {
+		if (n.link) return n.link;
+		const role = user?.role;
+		switch (n.type) {
+			case 'sos': return role === 'admin' ? '/admin/sos' : '/citizen/sos/history';
+			case 'alert': return role === 'admin' ? '/admin/reports' : '/citizen/dashboard';
+			case 'relief': return role === 'admin' ? '/admin/relief' : '/citizen/dashboard';
+			case 'task': return '/volunteer/tasks';
+			default: return null;
+		}
+	};
+
 	const handleNotifClick = async (n) => {
 		await markAsRead(n.id);
 		setNotifOpen(false);
-		if (n.link) navigate(n.link);
+		const link = getNotifLink(n);
+		if (link) navigate(link);
 	};
 
 	const markAllAsRead = async () => {
