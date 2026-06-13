@@ -102,6 +102,10 @@ const PORT = process.env.PORT || 5000;
 
 httpServer.listen(PORT, () => {
 	console.log(`Server running on port ${PORT}`);
+	console.log("=========================================");
+console.log("   ResQBD Backend Server Started         ");
+console.log("   Ready for Disaster Response Management ");
+console.log("=========================================");
 });
 
 process.on('SIGTERM', async () => {
